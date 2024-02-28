@@ -1,0 +1,14 @@
+﻿<?xml version="1.0"?>
+<PluginData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="GitHubPlugin">
+  <Id>Streuwinkel/ProjectedLights</Id>
+  <GroupId>Streuwinkel/ProjectedLights</GroupId>
+  <FriendlyName>Projected Lights</FriendlyName>
+  <Author>Streuwinkel</Author>
+  <Commit></Commit>
+  <SourceDirectories>
+    <Directory>Source</Directory>
+    <Directory>Properties</Directory>
+  </SourceDirectories>
+  <Tooltip>Turns point lights into projected lights.</Tooltip>
+  <Description>This plugin gives more lights a projected texture to increase visual fidelity.</Description>
+</PluginData>
