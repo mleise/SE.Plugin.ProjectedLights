@@ -40,8 +40,8 @@ struct LightDefinition
 		["LargeBlockInsetLight"] = new LightDefinition(true)
 		{
 			Texture = @"Textures\Lights\reflector_2.dds",
-			ConeAngle = 163, Forward = +0.813f, Rotation = -2,
-			Bloom = 15, Intensity = 5, Mix = 0.1f,
+			ConeAngle = 163, Forward = +0.813f, Rotation = 0,
+			Bloom = 15, Intensity = 7, Mix = 0.1f,
 		},
 		["SmallLight"] = new LightDefinition(true)
 		{
@@ -151,7 +151,7 @@ struct LightDefinition
 	/// <summary>Multiplier for the bloom caused by emissive materials. Setting this higher than ~17.4, will cause some LCDs to turn dark due to 8-bit rounding to 0.</summary>
 	internal const float EMISSIVE_BOOST = 17.4f;
 	/// <summary>Drops the intensity of the gloss effect.</summary>
-	internal const float GLOSS_FACTOR = 0.15f;
+	internal const float GLOSS_FACTOR = 0.2f;
 }
 
 enum LightFlags : uint {
