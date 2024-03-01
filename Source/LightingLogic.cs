@@ -159,7 +159,7 @@ internal static class Patch_MyLightingLogic_RecreateLights
 	internal static void FixupLightingLogic(MyLightingLogic logic, bool isInitialCreation)
 	{
 		var block = (MyFunctionalBlock)s_blockField.GetValue(logic);
-		var definition = IniHandler.GetFullDefinition((MyLightingBlock)block, logic);
+		var definition = IniHandler.GetFullDefinition(block, logic);
 
 		// Processing is enabled for all interior light type blocks that aren't explicitly disabled in the definition.
 		if (!definition.Disabled)

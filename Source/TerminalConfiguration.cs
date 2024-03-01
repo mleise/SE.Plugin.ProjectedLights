@@ -38,7 +38,7 @@ internal static class IniHandler
 		return ref result;
 	}
 
-	internal static LightDefinition GetFullDefinition(MyLightingBlock block, MyLightingLogic logic)
+	internal static LightDefinition GetFullDefinition(MyFunctionalBlock block, MyLightingLogic logic)
 	{
 		Parse(block, out var pr);
 		pr.definition.Disabled = !GetBool(ref pr, "Enabled", DefaultEnabled(ref pr));
@@ -137,55 +137,55 @@ internal static class IniHandler
 	}
 
 	private static bool DefaultEnabled(ref ParseResult pr) => typeof(MyInteriorLight).IsAssignableFrom(pr.block.GetType()) && !pr.definition.Disabled;
-	internal static bool GetEnabled(MyLightingBlock block) => GetBool(ref Parse(block, out var pr), "Enabled", DefaultEnabled(ref pr));
-	internal static bool SetEnabled(MyLightingBlock block, bool value) => SetBool(ref Parse(block, out var pr, true), "Enabled", DefaultEnabled(ref pr), value);
+	internal static bool GetEnabled(MyFunctionalBlock block) => GetBool(ref Parse(block, out var pr), "Enabled", DefaultEnabled(ref pr));
+	internal static bool SetEnabled(MyFunctionalBlock block, bool value) => SetBool(ref Parse(block, out var pr, true), "Enabled", DefaultEnabled(ref pr), value);
 
 	private static bool DefaultCastShadows(ref ParseResult pr) => pr.definition.CastShadows;
-	internal static bool GetCastShadows(MyLightingBlock block) => GetBool(ref Parse(block, out var pr), "CastShadows", DefaultCastShadows(ref pr));
-	internal static void SetCastShadows(MyLightingBlock block, bool value) => SetBool(ref Parse(block, out var pr, true), "CastShadows", DefaultCastShadows(ref pr), value);
+	internal static bool GetCastShadows(MyFunctionalBlock block) => GetBool(ref Parse(block, out var pr), "CastShadows", DefaultCastShadows(ref pr));
+	internal static void SetCastShadows(MyFunctionalBlock block, bool value) => SetBool(ref Parse(block, out var pr, true), "CastShadows", DefaultCastShadows(ref pr), value);
 
 	private static float DefaultConeAngle(ref ParseResult pr) => pr.definition.ConeAngle;
-	internal static float GetDefaultConeAngle(MyLightingBlock block) => DefaultConeAngle(ref Parse(block, out _));
-	internal static float GetConeAngle(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "ConeAngle", DefaultConeAngle(ref pr));
-	internal static void SetConeAngle(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "ConeAngle", DefaultConeAngle(ref pr), value);
+	internal static float GetDefaultConeAngle(MyFunctionalBlock block) => DefaultConeAngle(ref Parse(block, out _));
+	internal static float GetConeAngle(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "ConeAngle", DefaultConeAngle(ref pr));
+	internal static void SetConeAngle(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "ConeAngle", DefaultConeAngle(ref pr), value);
 
 	private static float DefaultForward(ref ParseResult pr) => pr.definition.Forward;
-	internal static float GetDefaultForward(MyLightingBlock block) => DefaultForward(ref Parse(block, out _));
-	internal static float GetForward(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "Forward", DefaultForward(ref pr));
-	internal static void SetForward(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Forward", DefaultForward(ref pr), value);
+	internal static float GetDefaultForward(MyFunctionalBlock block) => DefaultForward(ref Parse(block, out _));
+	internal static float GetForward(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Forward", DefaultForward(ref pr));
+	internal static void SetForward(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Forward", DefaultForward(ref pr), value);
 
 	private static float DefaultLeft(ref ParseResult pr) => pr.definition.Left;
-	internal static float GetDefaultLeft(MyLightingBlock block) => DefaultLeft(ref Parse(block, out _));
-	internal static float GetLeft(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "Left", DefaultLeft(ref pr));
-	internal static void SetLeft(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Left", DefaultLeft(ref pr), value);
+	internal static float GetDefaultLeft(MyFunctionalBlock block) => DefaultLeft(ref Parse(block, out _));
+	internal static float GetLeft(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Left", DefaultLeft(ref pr));
+	internal static void SetLeft(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Left", DefaultLeft(ref pr), value);
 
 	private static float DefaultRotation(ref ParseResult pr) => pr.definition.Rotation;
-	internal static float GetDefaultRotation(MyLightingBlock block) => DefaultRotation(ref Parse(block, out _));
-	internal static float GetRotation(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "Rotation", DefaultRotation(ref pr));
-	internal static void SetRotation(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Rotation", DefaultRotation(ref pr), value);
+	internal static float GetDefaultRotation(MyFunctionalBlock block) => DefaultRotation(ref Parse(block, out _));
+	internal static float GetRotation(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Rotation", DefaultRotation(ref pr));
+	internal static void SetRotation(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Rotation", DefaultRotation(ref pr), value);
 
 	private static float DefaultBloom(ref ParseResult pr) => pr.definition.Bloom;
-	internal static float GetDefaultBloom(MyLightingBlock block) => DefaultBloom(ref Parse(block, out _));
-	internal static float GetBloom(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "Bloom", DefaultBloom(ref pr));
-	internal static void SetBloom(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Bloom", DefaultBloom(ref pr), value);
+	internal static float GetDefaultBloom(MyFunctionalBlock block) => DefaultBloom(ref Parse(block, out _));
+	internal static float GetBloom(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Bloom", DefaultBloom(ref pr));
+	internal static void SetBloom(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Bloom", DefaultBloom(ref pr), value);
 
 	private static float DefaultIntensity(ref ParseResult pr) => pr.definition.Intensity;
-	internal static float GetDefaultIntensity(MyLightingBlock block) => DefaultIntensity(ref Parse(block, out _));
-	internal static float GetIntensity(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "Intensity", DefaultIntensity(ref pr));
-	internal static void SetIntensity(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Intensity", DefaultIntensity(ref pr), value);
+	internal static float GetDefaultIntensity(MyFunctionalBlock block) => DefaultIntensity(ref Parse(block, out _));
+	internal static float GetIntensity(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Intensity", DefaultIntensity(ref pr));
+	internal static void SetIntensity(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Intensity", DefaultIntensity(ref pr), value);
 
 	private static float DefaultMix(ref ParseResult pr) => pr.definition.Mix;
-	internal static float GetDefaultMix(MyLightingBlock block) => DefaultMix(ref Parse(block, out _));
-	internal static float GetMix(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "Mix", DefaultMix(ref pr)) * 100;
-	internal static void SetMix(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Mix", DefaultMix(ref pr), value / 100);
+	internal static float GetDefaultMix(MyFunctionalBlock block) => DefaultMix(ref Parse(block, out _));
+	internal static float GetMix(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Mix", DefaultMix(ref pr)) * 100;
+	internal static void SetMix(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Mix", DefaultMix(ref pr), value / 100);
 
-	internal static string GetTexture(MyLightingBlock block) => GetString(ref Parse(block, out _), "Texture", "");
-	internal static void SetTexture(MyLightingBlock block, string value) => SetString(ref Parse(block, out _, true), "Texture", "", value);
+	internal static string GetTexture(MyFunctionalBlock block) => GetString(ref Parse(block, out _), "Texture", "");
+	internal static void SetTexture(MyFunctionalBlock block, string value) => SetString(ref Parse(block, out _, true), "Texture", "", value);
 
 	private static float DefaultTextureRotation(ref ParseResult pr) => pr.definition.TextureRotation;
-	internal static float GetDefaultTextureRotation(MyLightingBlock block) => DefaultTextureRotation(ref Parse(block, out _));
-	internal static float GetTextureRotation(MyLightingBlock block) => GetFloat(ref Parse(block, out var pr), "TextureRotation", DefaultTextureRotation(ref pr));
-	internal static void SetTextureRotation(MyLightingBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "TextureRotation", DefaultTextureRotation(ref pr), value);
+	internal static float GetDefaultTextureRotation(MyFunctionalBlock block) => DefaultTextureRotation(ref Parse(block, out _));
+	internal static float GetTextureRotation(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "TextureRotation", DefaultTextureRotation(ref pr));
+	internal static void SetTextureRotation(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "TextureRotation", DefaultTextureRotation(ref pr), value);
 }
 
 // Here we update make sure that any configuration done in the custom data of a lighting block is applied after a
@@ -196,7 +196,7 @@ internal static class Patch_MyTerminalBlock_SetCustomData_Internal
 {
 	internal static void Postfix(MyTerminalBlock __instance)
 	{
-		if (__instance is MyLightingBlock || __instance is MySearchlight || __instance is MyHeatVentBlock)
+		if (__instance is MyLightingBlock)
 		{
 			// All the different lighting blocks (interior, spot, search, heat vent) conveniently have a private
 			// "m_lightingLogic" field somewhere that encapsulates the bulk of work dealing with 3D models and their light
@@ -236,13 +236,15 @@ internal static class TerminalControls
 
 	static TerminalControls()
 	{
-		s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyInteriorLight>("ProjectedLightsEnabled", MySpaceTexts.DisplayName_Block_ReflectorLight)
+		s_terminalControls.Add(new MyTerminalControlSeparator<MyFunctionalBlock>());
+
+		s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("ProjectedLightsEnabled", MySpaceTexts.DisplayName_Block_ReflectorLight)
 		{
 			Getter = IniHandler.GetEnabled,
 			Setter = (x, v) => { if (IniHandler.SetEnabled(x, v)) { x.RaisePropertiesChanged(); } },
 		});
 
-		var mixSlider = new MyTerminalControlSlider<MyInteriorLight>("Mix", MySpaceTexts.BlockPropertyTitle_Scale, MySpaceTexts.Blank)
+		var mixSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Mix", MySpaceTexts.BlockPropertyTitle_Scale, MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			DefaultValueGetter = IniHandler.GetDefaultMix,
@@ -253,7 +255,7 @@ internal static class TerminalControls
 		mixSlider.SetLimits(0, 100);
 		s_terminalControls.Add(mixSlider);
 
-		var bloomSlider = new MyTerminalControlSlider<MyInteriorLight>("Bloom", MyStringId.GetOrCompute("Bloom"), MySpaceTexts.Blank)
+		var bloomSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Bloom", MyStringId.GetOrCompute("Bloom"), MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			DefaultValueGetter = IniHandler.GetDefaultBloom,
@@ -264,14 +266,14 @@ internal static class TerminalControls
 		bloomSlider.SetLogLimits(0.5f, 200);
 		s_terminalControls.Add(bloomSlider);
 
-		s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyInteriorLight>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
+		s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
 		{
 			Enabled = IniHandler.GetEnabled,
 			Getter = IniHandler.GetCastShadows,
 			Setter = IniHandler.SetCastShadows,
 		});
 
-		var coneAngleSlider = new MyTerminalControlSlider<MyInteriorLight>("ConeAngle", MySpaceTexts.BlockPropertiesText_MotorCurrentAngle, MySpaceTexts.Blank)
+		var coneAngleSlider = new MyTerminalControlSlider<MyFunctionalBlock>("ConeAngle", MySpaceTexts.BlockPropertiesText_MotorCurrentAngle, MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			DefaultValueGetter = IniHandler.GetDefaultConeAngle,
@@ -282,7 +284,7 @@ internal static class TerminalControls
 		coneAngleSlider.SetLimits(0, 180);
 		s_terminalControls.Add(coneAngleSlider);
 
-		s_terminalControls.Add(new MyTerminalControlCombobox<MyInteriorLight>("Texture", MySpaceTexts.BlockPropertyTitle_LCDScreenDefinitionsTextures, MySpaceTexts.Blank)
+		s_terminalControls.Add(new MyTerminalControlCombobox<MyFunctionalBlock>("Texture", MySpaceTexts.BlockPropertyTitle_LCDScreenDefinitionsTextures, MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			ComboBoxContent = (list) =>
@@ -314,7 +316,7 @@ internal static class TerminalControls
 			},
 		});
 
-		var textureRotationSlider = new MyTerminalControlSlider<MyInteriorLight>("TextureRotation", MySpaceTexts.HelpScreen_ControllerRotation_Roll, MySpaceTexts.Blank)
+		var textureRotationSlider = new MyTerminalControlSlider<MyFunctionalBlock>("TextureRotation", MySpaceTexts.HelpScreen_ControllerRotation_Roll, MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			DefaultValueGetter = IniHandler.GetDefaultTextureRotation,
@@ -325,7 +327,7 @@ internal static class TerminalControls
 		textureRotationSlider.SetLimits(-180, +180);
 		s_terminalControls.Add(textureRotationSlider);
 
-		var rotationSlider = new MyTerminalControlSlider<MyInteriorLight>("Rotation", MySpaceTexts.HelpScreen_ControllerRotation_Pitch, MySpaceTexts.Blank)
+		var rotationSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Rotation", MySpaceTexts.HelpScreen_ControllerRotation_Pitch, MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			DefaultValueGetter = IniHandler.GetDefaultRotation,
@@ -336,7 +338,7 @@ internal static class TerminalControls
 		rotationSlider.SetLimits(-180, +180);
 		s_terminalControls.Add(rotationSlider);
 
-		var forwardSlider = new MyTerminalControlSlider<MyInteriorLight>("Forward", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetZ, MySpaceTexts.Blank)
+		var forwardSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Forward", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetZ, MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			DefaultValueGetter = IniHandler.GetDefaultForward,
@@ -347,7 +349,7 @@ internal static class TerminalControls
 		forwardSlider.SetLimits(-5, +5);
 		s_terminalControls.Add(forwardSlider);
 
-		var leftSlider = new MyTerminalControlSlider<MyInteriorLight>("Left", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetX, MySpaceTexts.Blank)
+		var leftSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Left", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetX, MySpaceTexts.Blank)
 		{
 			Enabled = IniHandler.GetEnabled,
 			DefaultValueGetter = IniHandler.GetDefaultLeft,
