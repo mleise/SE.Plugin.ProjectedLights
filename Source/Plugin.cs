@@ -1,12 +1,5 @@
 ﻿using HarmonyLib;
-using Sandbox.Game.Entities.Blocks;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
-using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces.Terminal;
-using SpaceEngineers.Game.Entities.Blocks;
-using System.Collections.Generic;
 using System.Reflection;
 using VRage.Game.Components;
 using VRage.Plugins;
@@ -31,11 +24,11 @@ sealed public class AdditionalLightOptions : MySessionComponentBase
 {
 	public override void LoadData()
 	{
-		MyAPIGateway.TerminalControls.CustomControlGetter += TerminalControls.AddCustomControls;
+		MyAPIGateway.TerminalControls.CustomControlGetter += TerminalControls.AddTerminalControls;
 	}
 
 	protected override void UnloadData()
 	{
-		MyAPIGateway.TerminalControls.CustomControlGetter -= TerminalControls.AddCustomControls;
+		MyAPIGateway.TerminalControls.CustomControlGetter -= TerminalControls.AddTerminalControls;
 	}
 }
