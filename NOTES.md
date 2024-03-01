@@ -63,6 +63,8 @@ Since a lot of configuration happens in the INI file and we don't want to parse 
 
 - Heat vent blocks: How do they behave right now?
 
+- Does the default namespace get applied?
+
 #### Things that could be done in the future
 
 - Import light intensity data from light fixture manufacturers to provide 360° light masks.

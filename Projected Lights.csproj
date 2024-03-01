@@ -67,8 +67,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\LightingLogic.cs" />
+    <Compile Include="Source\TerminalConfiguration.cs" />
     <Compile Include="Source\Rendering.cs" />
-    <Compile Include="Source\Lights.cs" />
+    <Compile Include="Source\LightDefinitions.cs" />
     <Compile Include="Source\Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

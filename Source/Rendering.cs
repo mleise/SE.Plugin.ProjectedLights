@@ -6,6 +6,7 @@ using VRage.Render.Scene.Components;
 using VRageRender.Messages;
 using System;
 using System.Collections;
+using VRageRender;
 
 // Space Engineers can render up to 4 shadows. This patch contains heuristics to ensure the important spot lights are rendered first.
 [HarmonyPatch]
@@ -104,5 +105,48 @@ internal static class Patch_MyLightsRendering_RenderSpotlights
 			}
 		}
 		return codes;
+	}
+}
+
+// The render target texture used for emissive materials is 8-bit, so the amount of bloom we get is hard capped by the
+// renderers emissive bloom multiplier. In order to get a realistically blinding light without resorting to the glare
+// sprites we need to bump up this bloom response a lot.
+[HarmonyPatch(typeof(MyPostprocessSettings), nameof(MyPostprocessSettings.GetProcessedData))]
+internal static class Patch_MyPostprocessSettings_GetProcessedData
+{
+	internal static void Postfix(ref MyPostprocessSettings.Layout __result)
+	{
+		__result.BloomEmissiveness *= LightDefinition.EMISSIVE_BOOST;
+	}
+}
+
+// Now since everything blooms out more than desired, we have to write smaller values into the emissive render target.
+[HarmonyPatch]
+internal static class Patch_MyRender11_ProcessMessageInternal
+{
+	internal static void Prepare()
+	{
+		AccessTools.Field("VRage.Render11.Scene.Components.MyModelProperties:DefaultEmissivity").SetValue(null, LightDefinition.EMISSIVE_BOOST_INV);
+
+		var myInstanceMaterialType = AccessTools.TypeByName("VRage.Render11.GeometryStage2.Instancing.MyInstanceMaterial");
+		var defaultField = AccessTools.Field(myInstanceMaterialType, "Default");
+		var material = defaultField.GetValue(null);
+		AccessTools.PropertySetter(myInstanceMaterialType, "Emissivity").Invoke(material, new object[] { LightDefinition.EMISSIVE_BOOST_INV });
+		defaultField.SetValue(null, material);
+	}
+
+	internal static MethodBase TargetMethod() => AccessTools.Method("VRageRender.MyRender11:ProcessMessageInternal");
+
+	internal static void Prefix(MyRenderMessageBase message)
+	{
+		switch (message.MessageType)
+		{
+			case MyRenderMessageEnum.UpdateColorEmissivity: // Used for example by batteries, spammed by H2/O2 generators.
+				((MyRenderMessageUpdateColorEmissivity)message).Emissivity *= LightDefinition.EMISSIVE_BOOST_INV;
+				break;
+			case MyRenderMessageEnum.UpdateModelProperties: // Used when lights change their emissive texture.
+				((MyRenderMessageUpdateModelProperties)message).Emissivity *= LightDefinition.EMISSIVE_BOOST_INV;
+				break;
+		}
 	}
 }
