@@ -4,253 +4,256 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Lights;
 using SpaceEngineers.Game.Entities.Blocks;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System;
 using VRageMath;
 using VRageRender;
 
-enum LightFlags : uint
+namespace mleise.ProjectedLightsPlugin
 {
-	handledByUs = 0x80000000,
-}
-
-internal static class MyExtensions
-{
-	private static FieldInfo s_lightingLogicFieldInfo = AccessTools.DeclaredField(typeof(MyLightingBlock), "m_lightingLogic");
-
-	internal static MyLightingLogic LightingLogic(this MyLightingBlock block)
+	enum LightFlags : uint
 	{
-		return (MyLightingLogic)s_lightingLogicFieldInfo.GetValue(block);
+		handledByUs = 0x80000000,
 	}
 
-	internal static bool IsLightHandledByUs(this MyLightingLogic logic)
+	internal static class MyExtensions
 	{
-		return logic.Lights.Count == 0 || ((uint)logic.Lights[0].LightType & (uint)LightFlags.handledByUs) != 0;
-	}
-}
+		private static FieldInfo s_lightingLogicFieldInfo = AccessTools.DeclaredField(typeof(MyLightingBlock), "m_lightingLogic");
 
-// Pasting grids or welding projected interior lights normally enables the glare, so we disable this method.
-[HarmonyPatch(typeof(MyInteriorLight), "UpdateGlare")]
-internal static class Patch_MyInteriorLight_UpdateGlare
-{
-	internal static bool Prefix(MyInteriorLight __instance)
-	{
-		return !__instance.LightingLogic().IsLightHandledByUs();
-	}
-}
-
-// Here we clone the original, but omit the glare and make the light cone brighter the more focused it is.
-// We also update the emissive material, because we now incorporate the lights intensity into emissivity.
-[HarmonyPatch(typeof(MyInteriorLight), "UpdateIntensity")]
-internal static class Patch_MyInteriorLight_UpdateIntensity
-{
-	internal static bool Prefix(MyInteriorLight __instance)
-	{
-		var logic = __instance.LightingLogic();
-		if (logic.IsLightHandledByUs())
+		internal static MyLightingLogic LightingLogic(this MyLightingBlock block)
 		{
-			float vanillaIntensity = 2 * logic.CurrentLightPower * __instance.Intensity;
-			foreach (MyLight light in logic.Lights)
+			return (MyLightingLogic)s_lightingLogicFieldInfo.GetValue(block);
+		}
+
+		internal static bool IsLightHandledByUs(this MyLightingLogic logic)
+		{
+			return logic.Lights.Count == 0 || ((uint)logic.Lights[0].LightType & (uint)LightFlags.handledByUs) != 0;
+		}
+	}
+
+	// Pasting grids or welding projected interior lights normally enables the glare, so we disable this method.
+	[HarmonyPatch(typeof(MyInteriorLight), "UpdateGlare")]
+	internal static class Patch_MyInteriorLight_UpdateGlare
+	{
+		internal static bool Prefix(MyInteriorLight __instance)
+		{
+			return !__instance.LightingLogic().IsLightHandledByUs();
+		}
+	}
+
+	// Here we clone the original, but omit the glare and make the light cone brighter the more focused it is.
+	// We also update the emissive material, because we now incorporate the lights intensity into emissivity.
+	[HarmonyPatch(typeof(MyInteriorLight), "UpdateIntensity")]
+	internal static class Patch_MyInteriorLight_UpdateIntensity
+	{
+		internal static bool Prefix(MyInteriorLight __instance)
+		{
+			var logic = __instance.LightingLogic();
+			if (logic.IsLightHandledByUs())
 			{
-				light.Intensity = vanillaIntensity * light.GlareIntensity;
-				light.ReflectorIntensity = vanillaIntensity * LightDefinition.GLOSS_FACTOR * light.GlareQueryFreqMinMs * (1 - light.GlareIntensity);
+				float vanillaIntensity = 2 * logic.CurrentLightPower * __instance.Intensity;
+				foreach (MyLight light in logic.Lights)
+				{
+					light.Intensity = vanillaIntensity * light.GlareIntensity;
+					light.ReflectorIntensity = vanillaIntensity * LightDefinition.GLOSS_FACTOR * light.GlareQueryFreqMinMs * (1 - light.GlareIntensity);
+				}
+
+				logic.BulbColor = logic.ComputeBulbColor();
+				return false;
 			}
-
-			logic.BulbColor = logic.ComputeBulbColor();
-			return false;
+			return true;
 		}
-		return true;
-	}
 
-	internal static void Postfix(MyInteriorLight __instance)
-	{
-		var logic = __instance.LightingLogic();
-		if (logic.IsLightHandledByUs())
+		internal static void Postfix(MyInteriorLight __instance)
 		{
-			logic.IsEmissiveMaterialDirty = true;
-			logic.UpdateEmissiveMaterial();
-		}
-	}
-}
-
-[HarmonyPatch(typeof(MyLightingLogic), nameof(MyLightingLogic.ComputeBulbColor))]
-internal static class Patch_MyLightingLogic_ComputeBulbColor
-{
-	internal static bool Prefix(MyLightingLogic __instance, ref Color __result)
-	{
-		if (__instance.IsLightHandledByUs())
-		{
-			var color = __instance.Color;
-			byte r = (byte)(Math.Sqrt(color.R / 255.0) * 101 + 1);
-			byte g = (byte)(Math.Sqrt(color.G / 255.0) * 101 + 1);
-			byte b = (byte)(Math.Sqrt(color.B / 255.0) * 101 + 1);
-			__result = new Color(r, g, b);
-			return false;
-		}
-		return true;
-	}
-}
-
-[HarmonyPatch(typeof(MyLightingLogic), "UpdateLightProperties")]
-internal static class Patch_MyLightingLogic_UpdateLightProperties
-{
-	internal static bool Prefix(MyLightingLogic __instance)
-	{
-		if (__instance.IsLightHandledByUs())
-		{
-			foreach (var light in __instance.Lights)
+			var logic = __instance.LightingLogic();
+			if (logic.IsLightHandledByUs())
 			{
-				light.ReflectorColor = __instance.Color;
-				light.ReflectorFalloff = 0.52f;
-				light.PointLightOffset = __instance.Offset - light.GlareQueryFreqRndMs;
-				light.Range = __instance.Radius;
-				light.ReflectorRange = __instance.Radius + light.PointLightOffset;
-				light.Falloff = __instance.Falloff;
-				light.UpdateLight();
+				logic.IsEmissiveMaterialDirty = true;
+				logic.UpdateEmissiveMaterial();
 			}
-			return false;
 		}
-		else
+	}
+
+	[HarmonyPatch(typeof(MyLightingLogic), nameof(MyLightingLogic.ComputeBulbColor))]
+	internal static class Patch_MyLightingLogic_ComputeBulbColor
+	{
+		internal static bool Prefix(MyLightingLogic __instance, ref Color __result)
 		{
+			if (__instance.IsLightHandledByUs())
+			{
+				var color = __instance.Color;
+				byte r = (byte)(Math.Sqrt(color.R / 255.0) * 101 + 1);
+				byte g = (byte)(Math.Sqrt(color.G / 255.0) * 101 + 1);
+				byte b = (byte)(Math.Sqrt(color.B / 255.0) * 101 + 1);
+				__result = new Color(r, g, b);
+				return false;
+			}
 			return true;
 		}
 	}
-}
 
-[HarmonyPatch(typeof(MyLightingLogic), "UpdateEmissiveMaterial", new Type[] { typeof(uint) })]
-internal static class Patch_MyLightingLogic_UpdateEmissiveMaterial
-{
-	private static FieldInfo s_blinkOnFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_blinkOn");
-	private static FieldInfo s_pointLightEmissiveMaterialFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_pointLightEmissiveMaterial");
-	private static FieldInfo s_spotLightEmissiveMaterialFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_spotLightEmissiveMaterial");
-
-	internal static bool Prefix(MyLightingLogic __instance, uint renderId)
+	[HarmonyPatch(typeof(MyLightingLogic), "UpdateLightProperties")]
+	internal static class Patch_MyLightingLogic_UpdateLightProperties
 	{
-		if (__instance.IsLightHandledByUs())
+		internal static bool Prefix(MyLightingLogic __instance)
 		{
-			if (renderId != uint.MaxValue)
+			if (__instance.IsLightHandledByUs())
 			{
-				var blinkOn = (bool)s_blinkOnFieldInfo.GetValue(__instance);
-				var intensity = blinkOn ? __instance.CurrentLightPower * __instance.Intensity * __instance.Lights[0].GlareMaxDistance : 0;
-				var pointLightEmissiveMaterial = (string)s_pointLightEmissiveMaterialFieldInfo.GetValue(__instance);
-				var spotLightEmissiveMaterial = (string)s_spotLightEmissiveMaterialFieldInfo.GetValue(__instance);
-				MyRenderProxy.UpdateModelProperties(renderId, pointLightEmissiveMaterial, 0, 0, __instance.BulbColor, intensity);
-				if (!string.IsNullOrEmpty(spotLightEmissiveMaterial))
+				foreach (var light in __instance.Lights)
 				{
-					MyRenderProxy.UpdateModelProperties(renderId, spotLightEmissiveMaterial, 0, 0, __instance.BulbColor, intensity);
+					light.ReflectorColor = __instance.Color;
+					light.ReflectorFalloff = 0.52f;
+					light.PointLightOffset = __instance.Offset - light.GlareQueryFreqRndMs;
+					light.Range = __instance.Radius;
+					light.ReflectorRange = __instance.Radius + light.PointLightOffset;
+					light.Falloff = __instance.Falloff;
+					light.UpdateLight();
 				}
+				return false;
 			}
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-}
-
-// This is where MyLightingLogic creates its lights using its LightLocalDatas array and some fixed data from the block definition.
-[HarmonyPatch(typeof(MyLightingLogic), nameof(MyLightingLogic.RecreateLights))]
-internal static class Patch_MyLightingLogic_RecreateLights
-{
-	private static FieldInfo s_blockField = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_block");
-
-	internal static void FixupLightingLogic(MyLightingLogic logic, bool isInitialCreation)
-	{
-		var block = (MyFunctionalBlock)s_blockField.GetValue(logic);
-		var definition = IniHandler.GetFullDefinition(block, logic);
-
-		// Processing is enabled for all interior light type blocks that aren't explicitly disabled in the definition.
-		if (!definition.Disabled)
-		{
-			List<MyLightingLogic.LightLocalData> lightLocalDatas = logic.LightLocalDatas;
-			List<MyLight> lights = logic.Lights;
-
-			foreach (var light in lights)
+			else
 			{
-				// Mark as handled by us and disable glare so we can use its fields for other purposes.
-				light.LightType = (MyLightType)((uint)light.LightType | (uint)LightFlags.handledByUs);
-				light.GlareOn = false;
-				light.GlossFactor = 0;
-				// Hijack glare intensity as blend factor between spot light and point light.
-				light.GlareIntensity = definition.Mix;
-				// Hijacked to store a bloom intensity coefficient.
-				light.GlareMaxDistance = definition.Bloom;
-				// Hijacked to store an intensity coefficient.
-				light.GlareQueryFreqMinMs = definition.Intensity;
-				// Cast shadows only if explicitly asked for and limit cone accordingly
-				light.CastShadows = definition.CastShadows;
-				// Turn projected texture on and set its cone angle.
-				light.ReflectorOn = definition.Mix < 1;
-				light.ReflectorTexture = definition.Texture;
-				light.ReflectorConeDegrees = definition.ConeAngle;
-				light.ReflectorGlossFactor = 1;
-				light.ReflectorDiffuseFactor = light.DiffuseFactor / LightDefinition.GLOSS_FACTOR;
+				return true;
 			}
-
-			// We first reset the position, then add our offset.
-			logic.UpdateLightData();
-			for (int i = 0; i < lightLocalDatas.Count; i++)
-			{
-				var lightData = lightLocalDatas[i];
-				var oldTranslation = lightData.LocalMatrix.Translation;
-				lightData.LocalMatrix = Matrix.Multiply(lightData.LocalMatrix, Matrix.CreateFromAxisAngle(lightData.LocalMatrix.Right, MathHelper.ToRadians(definition.Rotation)));
-				var leftBeforeRoll = lightData.LocalMatrix.Left;
-				lightData.LocalMatrix = Matrix.Multiply(lightData.LocalMatrix, Matrix.CreateFromAxisAngle(lightData.LocalMatrix.Forward, MathHelper.ToRadians(definition.TextureRotation)));
-				lightData.LocalMatrix.Translation = lightData.LocalMatrix.Forward * definition.Forward + leftBeforeRoll * definition.Left;
-				// Hijacked to fix point light offset after we moved the origin.
-				lights[i].GlareQueryFreqRndMs = Vector3.Dot(lightData.LocalMatrix.Forward, lightData.LocalMatrix.Translation - oldTranslation);
-			}
-			logic.IsPositionDirty = true;
-			logic.UpdateLightPosition();
-			logic.IsEmissiveMaterialDirty = true;
-			logic.UpdateEmissiveMaterial();
-			typeof(MyLightingLogic).GetMethod("UpdateIntensity", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
-			logic.UpdateLightProperties();
-		}
-		else if (!isInitialCreation)
-		{
-			logic.Initialize();
-			logic.UpdateParents();
-			logic.IsEmissiveMaterialDirty = true;
-			logic.UpdateEmissiveMaterial();
-			logic.UpdateLightProperties();
 		}
 	}
 
-	internal static void Postfix(MyLightingLogic __instance)
+	[HarmonyPatch(typeof(MyLightingLogic), "UpdateEmissiveMaterial", new Type[] { typeof(uint) })]
+	internal static class Patch_MyLightingLogic_UpdateEmissiveMaterial
 	{
-		FixupLightingLogic(__instance, true);
-	}
-}
+		private static FieldInfo s_blinkOnFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_blinkOn");
+		private static FieldInfo s_pointLightEmissiveMaterialFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_pointLightEmissiveMaterial");
+		private static FieldInfo s_spotLightEmissiveMaterialFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_spotLightEmissiveMaterial");
 
-// This patch replaces the turn on/off logic for when the light is blinking.
-[HarmonyPatch(typeof(MyInteriorLight), "UpdateEnabled")]
-internal static class Patch_MyInteriorLight_UpdateEnabled
-{
-	internal static bool Prefix(MyInteriorLight __instance, bool state)
-	{
-		var logic = __instance.LightingLogic();
-		if (logic.IsLightHandledByUs())
+		internal static bool Prefix(MyLightingLogic __instance, uint renderId)
 		{
-			foreach (var light in logic.Lights)
+			if (__instance.IsLightHandledByUs())
 			{
-				// Glare intensity is where we store the LERP factor between spot light and point light.
-				if (light.GlareIntensity > 0)
+				if (renderId != uint.MaxValue)
 				{
-					light.LightOn = state;
+					var blinkOn = (bool)s_blinkOnFieldInfo.GetValue(__instance);
+					var intensity = blinkOn ? __instance.CurrentLightPower * __instance.Intensity * __instance.Lights[0].GlareMaxDistance : 0;
+					var pointLightEmissiveMaterial = (string)s_pointLightEmissiveMaterialFieldInfo.GetValue(__instance);
+					var spotLightEmissiveMaterial = (string)s_spotLightEmissiveMaterialFieldInfo.GetValue(__instance);
+					MyRenderProxy.UpdateModelProperties(renderId, pointLightEmissiveMaterial, 0, 0, __instance.BulbColor, intensity);
+					if (!string.IsNullOrEmpty(spotLightEmissiveMaterial))
+					{
+						MyRenderProxy.UpdateModelProperties(renderId, spotLightEmissiveMaterial, 0, 0, __instance.BulbColor, intensity);
+					}
 				}
-				if (light.GlareIntensity < 1)
-				{
-					light.ReflectorOn = state;
-				}
+				return false;
 			}
-			return false;
+			else
+			{
+				return true;
+			}
 		}
-		else
+	}
+
+	// This is where MyLightingLogic creates its lights using its LightLocalDatas array and some fixed data from the block definition.
+	[HarmonyPatch(typeof(MyLightingLogic), nameof(MyLightingLogic.RecreateLights))]
+	internal static class Patch_MyLightingLogic_RecreateLights
+	{
+		private static FieldInfo s_blockField = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_block");
+
+		internal static void FixupLightingLogic(MyLightingLogic logic, bool isInitialCreation)
 		{
-			return true;
+			var block = (MyFunctionalBlock)s_blockField.GetValue(logic);
+			var definition = IniHandler.GetFullDefinition(block);
+
+			// Processing is enabled for all interior light type blocks that aren't explicitly disabled in the definition.
+			if (!definition.Disabled)
+			{
+				List<MyLightingLogic.LightLocalData> lightLocalDatas = logic.LightLocalDatas;
+				List<MyLight> lights = logic.Lights;
+
+				foreach (var light in lights)
+				{
+					// Mark as handled by us and disable glare so we can use its fields for other purposes.
+					light.LightType = (MyLightType)((uint)light.LightType | (uint)LightFlags.handledByUs);
+					light.GlareOn = false;
+					light.GlossFactor = 0;
+					// Hijack glare intensity as blend factor between spot light and point light.
+					light.GlareIntensity = definition.Mix;
+					// Hijacked to store a bloom intensity coefficient.
+					light.GlareMaxDistance = definition.Bloom;
+					// Hijacked to store an intensity coefficient.
+					light.GlareQueryFreqMinMs = definition.Intensity;
+					// Cast shadows only if explicitly asked for and limit cone accordingly
+					light.CastShadows = definition.CastShadows;
+					// Turn projected texture on and set its cone angle.
+					light.ReflectorOn = definition.Mix < 1;
+					light.ReflectorTexture = definition.Texture;
+					light.ReflectorConeDegrees = definition.ConeAngle;
+					light.ReflectorGlossFactor = 1;
+					light.ReflectorDiffuseFactor = light.DiffuseFactor / LightDefinition.GLOSS_FACTOR;
+				}
+
+				// We first reset the position, then add our offset.
+				logic.UpdateLightData();
+				for (int i = 0; i < lightLocalDatas.Count; i++)
+				{
+					var lightData = lightLocalDatas[i];
+					var oldTranslation = lightData.LocalMatrix.Translation;
+					lightData.LocalMatrix = Matrix.Multiply(lightData.LocalMatrix, Matrix.CreateFromAxisAngle(lightData.LocalMatrix.Right, MathHelper.ToRadians(definition.Rotation)));
+					var leftBeforeRoll = lightData.LocalMatrix.Left;
+					lightData.LocalMatrix = Matrix.Multiply(lightData.LocalMatrix, Matrix.CreateFromAxisAngle(lightData.LocalMatrix.Forward, MathHelper.ToRadians(definition.TextureRotation)));
+					lightData.LocalMatrix.Translation = lightData.LocalMatrix.Forward * definition.Forward + leftBeforeRoll * definition.Left;
+					// Hijacked to fix point light offset after we moved the origin.
+					lights[i].GlareQueryFreqRndMs = Vector3.Dot(lightData.LocalMatrix.Forward, lightData.LocalMatrix.Translation - oldTranslation);
+				}
+				logic.IsPositionDirty = true;
+				logic.UpdateLightPosition();
+				logic.IsEmissiveMaterialDirty = true;
+				logic.UpdateEmissiveMaterial();
+				typeof(MyLightingLogic).GetMethod("UpdateIntensity", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
+				logic.UpdateLightProperties();
+			}
+			else if (!isInitialCreation)
+			{
+				logic.Initialize();
+				logic.UpdateParents();
+				logic.IsEmissiveMaterialDirty = true;
+				logic.UpdateEmissiveMaterial();
+				logic.UpdateLightProperties();
+			}
+		}
+
+		internal static void Postfix(MyLightingLogic __instance)
+		{
+			FixupLightingLogic(__instance, true);
+		}
+	}
+
+	// This patch replaces the turn on/off logic for when the light is blinking.
+	[HarmonyPatch(typeof(MyInteriorLight), "UpdateEnabled")]
+	internal static class Patch_MyInteriorLight_UpdateEnabled
+	{
+		internal static bool Prefix(MyInteriorLight __instance, bool state)
+		{
+			var logic = __instance.LightingLogic();
+			if (logic.IsLightHandledByUs())
+			{
+				foreach (var light in logic.Lights)
+				{
+					// Glare intensity is where we store the LERP factor between spot light and point light.
+					if (light.GlareIntensity > 0)
+					{
+						light.LightOn = state;
+					}
+					if (light.GlareIntensity < 1)
+					{
+						light.ReflectorOn = state;
+					}
+				}
+				return false;
+			}
+			else
+			{
+				return true;
+			}
 		}
 	}
 }
