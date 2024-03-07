@@ -12,7 +12,7 @@ namespace mleise.ProjectedLightsPlugin
 {
 	// Space Engineers can render up to 4 shadows. This patch contains heuristics to ensure the important spot lights are rendered first.
 	[HarmonyPatch]
-	internal static class Patch_MyLightsRendering_CullSpotLights
+	static class Patch_MyLightsRendering_CullSpotLights
 	{
 		private static Type myLightsRenderingType = AccessTools.TypeByName("VRage.Render11.LightingStage.MyLightsRendering");
 		private static FieldInfo resultsField = AccessTools.DeclaredField("VRage.Render11.Culling.MyCullQuery:Results");
@@ -86,7 +86,7 @@ namespace mleise.ProjectedLightsPlugin
 
 	// This patch removes the 32 instances limit from the spotlight renderer.
 	[HarmonyPatch]
-	internal static class Patch_MyLightsRendering_RenderSpotlights
+	static class Patch_MyLightsRendering_RenderSpotlights
 	{
 		private static Type myLightsRenderingType = AccessTools.TypeByName("VRage.Render11.LightingStage.MyLightsRendering");
 
@@ -114,7 +114,7 @@ namespace mleise.ProjectedLightsPlugin
 	// renderers emissive bloom multiplier. In order to get a realistically blinding light without resorting to the glare
 	// sprites we need to bump up this bloom response a lot.
 	[HarmonyPatch(typeof(MyPostprocessSettings), nameof(MyPostprocessSettings.GetProcessedData))]
-	internal static class Patch_MyPostprocessSettings_GetProcessedData
+	static class Patch_MyPostprocessSettings_GetProcessedData
 	{
 		internal static void Postfix(ref MyPostprocessSettings.Layout __result)
 		{
@@ -124,7 +124,7 @@ namespace mleise.ProjectedLightsPlugin
 
 	// Now since everything blooms out more than desired, we have to write smaller values into the emissive render target.
 	[HarmonyPatch]
-	internal static class Patch_MyRender11_ProcessMessageInternal
+	static class Patch_MyRender11_ProcessMessageInternal
 	{
 		internal static void Prepare()
 		{

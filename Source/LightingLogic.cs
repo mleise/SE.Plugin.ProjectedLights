@@ -17,7 +17,7 @@ namespace mleise.ProjectedLightsPlugin
 		handledByUs = 0x80000000,
 	}
 
-	internal static class MyExtensions
+	static class MyExtensions
 	{
 		private static FieldInfo s_lightingLogicFieldInfo = AccessTools.DeclaredField(typeof(MyLightingBlock), "m_lightingLogic");
 
@@ -34,7 +34,7 @@ namespace mleise.ProjectedLightsPlugin
 
 	// Pasting grids or welding projected interior lights normally enables the glare, so we disable this method.
 	[HarmonyPatch(typeof(MyInteriorLight), "UpdateGlare")]
-	internal static class Patch_MyInteriorLight_UpdateGlare
+	static class Patch_MyInteriorLight_UpdateGlare
 	{
 		internal static bool Prefix(MyInteriorLight __instance)
 		{
@@ -45,7 +45,7 @@ namespace mleise.ProjectedLightsPlugin
 	// Here we clone the original, but omit the glare and make the light cone brighter the more focused it is.
 	// We also update the emissive material, because we now incorporate the lights intensity into emissivity.
 	[HarmonyPatch(typeof(MyInteriorLight), "UpdateIntensity")]
-	internal static class Patch_MyInteriorLight_UpdateIntensity
+	static class Patch_MyInteriorLight_UpdateIntensity
 	{
 		internal static bool Prefix(MyInteriorLight __instance)
 		{
@@ -77,7 +77,7 @@ namespace mleise.ProjectedLightsPlugin
 	}
 
 	[HarmonyPatch(typeof(MyLightingLogic), nameof(MyLightingLogic.ComputeBulbColor))]
-	internal static class Patch_MyLightingLogic_ComputeBulbColor
+	static class Patch_MyLightingLogic_ComputeBulbColor
 	{
 		internal static bool Prefix(MyLightingLogic __instance, ref Color __result)
 		{
@@ -95,7 +95,7 @@ namespace mleise.ProjectedLightsPlugin
 	}
 
 	[HarmonyPatch(typeof(MyLightingLogic), "UpdateLightProperties")]
-	internal static class Patch_MyLightingLogic_UpdateLightProperties
+	static class Patch_MyLightingLogic_UpdateLightProperties
 	{
 		internal static bool Prefix(MyLightingLogic __instance)
 		{
@@ -121,7 +121,7 @@ namespace mleise.ProjectedLightsPlugin
 	}
 
 	[HarmonyPatch(typeof(MyLightingLogic), "UpdateEmissiveMaterial", new Type[] { typeof(uint) })]
-	internal static class Patch_MyLightingLogic_UpdateEmissiveMaterial
+	static class Patch_MyLightingLogic_UpdateEmissiveMaterial
 	{
 		private static FieldInfo s_blinkOnFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_blinkOn");
 		private static FieldInfo s_pointLightEmissiveMaterialFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_pointLightEmissiveMaterial");
@@ -154,7 +154,7 @@ namespace mleise.ProjectedLightsPlugin
 
 	// This is where MyLightingLogic creates its lights using its LightLocalDatas array and some fixed data from the block definition.
 	[HarmonyPatch(typeof(MyLightingLogic), nameof(MyLightingLogic.RecreateLights))]
-	internal static class Patch_MyLightingLogic_RecreateLights
+	static class Patch_MyLightingLogic_RecreateLights
 	{
 		private static FieldInfo s_blockField = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_block");
 
@@ -229,7 +229,7 @@ namespace mleise.ProjectedLightsPlugin
 
 	// This patch replaces the turn on/off logic for when the light is blinking.
 	[HarmonyPatch(typeof(MyInteriorLight), "UpdateEnabled")]
-	internal static class Patch_MyInteriorLight_UpdateEnabled
+	static class Patch_MyInteriorLight_UpdateEnabled
 	{
 		internal static bool Prefix(MyInteriorLight __instance, bool state)
 		{

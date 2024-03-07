@@ -6,7 +6,7 @@ using VRage.Plugins;
 
 namespace mleise.ProjectedLightsPlugin
 {
-	public class Main : IPlugin
+	sealed class Main : IPlugin
 	{
 		public void Startup() { }
 
@@ -22,7 +22,7 @@ namespace mleise.ProjectedLightsPlugin
 	}
 
 	[MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
-	sealed public class AdditionalLightOptions : MySessionComponentBase
+	sealed class AdditionalLightOptions : MySessionComponentBase
 	{
 		public override void LoadData()
 		{

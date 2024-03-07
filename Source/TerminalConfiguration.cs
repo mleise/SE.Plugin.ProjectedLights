@@ -17,7 +17,7 @@ using VRage.Utils;
 
 namespace mleise.ProjectedLightsPlugin
 {
-	internal static class IniHandler
+	static class IniHandler
 	{
 		private const string INI_SECTION = "ProjectedLights";
 
@@ -194,7 +194,7 @@ namespace mleise.ProjectedLightsPlugin
 	// change. I chose "SetCustomData_Internal()" instead of patching the "CustomData" setter, because the latter is
 	// inlined on release mode.
 	[HarmonyPatch(typeof(MyTerminalBlock), "SetCustomData_Internal")]
-	internal static class Patch_MyTerminalBlock_SetCustomData_Internal
+	static class Patch_MyTerminalBlock_SetCustomData_Internal
 	{
 		internal static void Postfix(MyTerminalBlock __instance)
 		{
@@ -214,7 +214,7 @@ namespace mleise.ProjectedLightsPlugin
 		}
 	}
 
-	internal static class TerminalControls
+	static class TerminalControls
 	{
 		internal static readonly KeyValuePair<string, string>[] TEXTURES = {
 		new KeyValuePair<string, string>("Default", ""),
