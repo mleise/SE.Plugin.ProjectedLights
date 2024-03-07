@@ -28,8 +28,10 @@ namespace mleise.ProjectedLightsPlugin
 			return myLightsRenderingType.GetMethod("CullSpotLights", BindingFlags.Static | BindingFlags.NonPublic);
 		}
 
-		internal static void Prepare()
+		internal static void Prepare(MethodBase original)
 		{
+			if (original == null)
+			{
 			var methods = outputListField.FieldType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var method in methods)
 			{
@@ -41,6 +43,7 @@ namespace mleise.ProjectedLightsPlugin
 			}
 			sortComparer = AccessTools.DeclaredField("VRage.Render11.Scene.Components.MyLightComponent:SortComparer").GetValue(null);
 			removeRangeFunction = outputListField.FieldType.GetMethod("RemoveRange", new Type[] { typeof(int), typeof(int) });
+		}
 		}
 
 		internal static bool Prefix(object query)
@@ -126,8 +129,10 @@ namespace mleise.ProjectedLightsPlugin
 	[HarmonyPatch]
 	static class Patch_MyRender11_ProcessMessageInternal
 	{
-		internal static void Prepare()
+		internal static void Prepare(MethodBase original)
 		{
+			if (original == null)
+			{
 			AccessTools.Field("VRage.Render11.Scene.Components.MyModelProperties:DefaultEmissivity").SetValue(null, LightDefinition.EMISSIVE_BOOST_INV);
 
 			var myInstanceMaterialType = AccessTools.TypeByName("VRage.Render11.GeometryStage2.Instancing.MyInstanceMaterial");
@@ -135,6 +140,7 @@ namespace mleise.ProjectedLightsPlugin
 			var material = defaultField.GetValue(null);
 			AccessTools.PropertySetter(myInstanceMaterialType, "Emissivity").Invoke(material, new object[] { LightDefinition.EMISSIVE_BOOST_INV });
 			defaultField.SetValue(null, material);
+		}
 		}
 
 		internal static MethodBase TargetMethod() => AccessTools.Method("VRageRender.MyRender11:ProcessMessageInternal");
