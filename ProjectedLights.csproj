@@ -7,22 +7,36 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <SpaceEngineersPath>$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850@InstallLocation)</SpaceEngineersPath>
     <OutputType>Library</OutputType>
-    <OutputPath>$(SpaceEngineersPath)\Bin64\Plugins\Local\</OutputPath>
     <StartAction>Program</StartAction>
     <StartProgram>$(SpaceEngineersPath)\Bin64\SpaceEngineersLauncher.exe</StartProgram>
     <StartWorkingDirectory>$(SpaceEngineersPath)\Bin64</StartWorkingDirectory>
-    <StartArguments>-skipintro -auto_join_world</StartArguments>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup Condition="'$(Platform)' == 'x64'"/>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Debug and continue game'">
     <DefineConstants>DEBUG</DefineConstants>
+	<DebugType>pdbonly</DebugType>
+	<IntermediateOutputPath>obj\Debug</IntermediateOutputPath>
+    <OutputPath>bin\Debug</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'Release and continue game'">
     <Optimize>true</Optimize>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<IntermediateOutputPath>obj\Release</IntermediateOutputPath>
+    <OutputPath>bin\Release</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <StartArguments>-plugin "$(MSBuildProjectDirectory)\bin\Debug\$(AssemblyName).dll" -skipintro</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug and continue game' Or '$(Configuration)' == 'Release and continue game'">
+    <StartArguments>-plugin "$(MSBuildProjectDirectory)\bin\Debug\$(AssemblyName).dll" -skipintro -auto_join_world</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <StartArguments>-plugin "$(MSBuildProjectDirectory)\bin\Release\$(AssemblyName).dll" -skipintro</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release and continue game'">
+    <StartArguments>-plugin "$(MSBuildProjectDirectory)\bin\Release\$(AssemblyName).dll" -skipintro -auto_join_world</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
