@@ -1,10 +1,14 @@
 ﻿using HarmonyLib;
+using SharpDX;
+using SharpDX.D3DCompiler;
+using SharpDX.Direct3D;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using VRage.Render.Scene.Components;
+using VRageMath;
 using VRageRender;
 using VRageRender.Messages;
 
@@ -32,18 +36,18 @@ namespace mleise.ProjectedLightsPlugin
 		{
 			if (original == null)
 			{
-			var methods = outputListField.FieldType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
-			foreach (var method in methods)
-			{
-				if (method.Name == "Sort" && method.GetParameters().Length == 1)
+				var methods = outputListField.FieldType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
+				foreach (var method in methods)
 				{
-					sortFunction = method;
-					break;
+					if (method.Name == "Sort" && method.GetParameters().Length == 1)
+					{
+						sortFunction = method;
+						break;
+					}
 				}
+				sortComparer = AccessTools.DeclaredField("VRage.Render11.Scene.Components.MyLightComponent:SortComparer").GetValue(null);
+				removeRangeFunction = outputListField.FieldType.GetMethod("RemoveRange", new Type[] { typeof(int), typeof(int) });
 			}
-			sortComparer = AccessTools.DeclaredField("VRage.Render11.Scene.Components.MyLightComponent:SortComparer").GetValue(null);
-			removeRangeFunction = outputListField.FieldType.GetMethod("RemoveRange", new Type[] { typeof(int), typeof(int) });
-		}
 		}
 
 		internal static bool Prefix(object query)
@@ -91,11 +95,11 @@ namespace mleise.ProjectedLightsPlugin
 	[HarmonyPatch]
 	static class Patch_MyLightsRendering_RenderSpotlights
 	{
-		private static Type myLightsRenderingType = AccessTools.TypeByName("VRage.Render11.LightingStage.MyLightsRendering");
+		private static Type s_myLightsRenderingType = AccessTools.TypeByName("VRage.Render11.LightingStage.MyLightsRendering");
 
 		internal static MethodBase TargetMethod()
 		{
-			return myLightsRenderingType.GetMethod("RenderSpotlights", BindingFlags.Static | BindingFlags.NonPublic);
+			return s_myLightsRenderingType.GetMethod("RenderSpotlights", BindingFlags.Static | BindingFlags.NonPublic);
 		}
 
 		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -133,14 +137,14 @@ namespace mleise.ProjectedLightsPlugin
 		{
 			if (original == null)
 			{
-			AccessTools.Field("VRage.Render11.Scene.Components.MyModelProperties:DefaultEmissivity").SetValue(null, LightDefinition.EMISSIVE_BOOST_INV);
+				AccessTools.Field("VRage.Render11.Scene.Components.MyModelProperties:DefaultEmissivity").SetValue(null, LightDefinition.EMISSIVE_BOOST_INV);
 
-			var myInstanceMaterialType = AccessTools.TypeByName("VRage.Render11.GeometryStage2.Instancing.MyInstanceMaterial");
-			var defaultField = AccessTools.Field(myInstanceMaterialType, "Default");
-			var material = defaultField.GetValue(null);
-			AccessTools.PropertySetter(myInstanceMaterialType, "Emissivity").Invoke(material, new object[] { LightDefinition.EMISSIVE_BOOST_INV });
-			defaultField.SetValue(null, material);
-		}
+				var myInstanceMaterialType = AccessTools.TypeByName("VRage.Render11.GeometryStage2.Instancing.MyInstanceMaterial");
+				var defaultField = AccessTools.Field(myInstanceMaterialType, "Default");
+				var material = defaultField.GetValue(null);
+				AccessTools.PropertySetter(myInstanceMaterialType, "Emissivity").Invoke(material, new object[] { LightDefinition.EMISSIVE_BOOST_INV });
+				defaultField.SetValue(null, material);
+			}
 		}
 
 		internal static MethodBase TargetMethod() => AccessTools.Method("VRageRender.MyRender11:ProcessMessageInternal");
@@ -155,6 +159,72 @@ namespace mleise.ProjectedLightsPlugin
 				case MyRenderMessageEnum.UpdateModelProperties: // Used when lights change their emissive texture.
 					((MyRenderMessageUpdateModelProperties)message).Emissivity *= LightDefinition.EMISSIVE_BOOST_INV;
 					break;
+			}
+		}
+	}
+
+	// The light bulb color (e.g. the emissive base color) was originally calculated in a way that starts at a dark
+	// gray and adds the light color set in the terminal in a scaled down version. We changed it to directly use the
+	// terminal color and convert it from sRGB to linear RGB, so it becomes pretty much WYSIWYG. Without the conversion
+	// to linear RGB, small color values had a tendency to become overly intense, turning orange into yellow and teal
+	// blue into turqoise for example.
+	[HarmonyPatch]
+	static class Patch_MyInstanceMaterial_ColorMult_set
+	{
+		internal static MethodBase TargetMethod()
+		{
+			return AccessTools.PropertySetter("VRage.Render11.GeometryStage2.Instancing.MyInstanceMaterial:ColorMult");
+		}
+
+		internal static void Prefix(ref Vector3 value)
+		{
+			value = ColorExtensions.ToLinearRGB(value);
+		}
+	}
+
+	// This isn't the complete story though. Emissive materials are also rendered into the environment reflection map
+	// where they cause vending machines or lights to be mirrored on the opposite wall. Unfortunately the color
+	// components therein are clamped via pixel shader to an intensity of 1000, resulting in a 2nd source of "my orange
+	// just turned yellow" when rendering very bright emissive materials.
+	// This patch intercepts and modifies the preprocessed shader text that is used to build a hash to look up the
+	// compiled shader in the cache. Space Engineers will not find he modified shader in the cache yet and compile it.
+	[HarmonyPatch(typeof(MyShaderCompiler), "PreprocessShader")]
+	static class Patch_MyShaderCompiler_PreprocessShader
+	{
+		internal static string s_preprocessedShader;
+
+		internal static void Postfix(string filepath, ShaderMacro[] macros, ref string __result)
+		{
+			if (filepath.EndsWith(@"\Pixel.hlsl"))
+			{
+				foreach (var define in macros)
+				{
+					if (define.Name == "RENDERING_PASS")
+					{
+						if (define.Definition == "2")
+						{
+							// This is the forward renderer for the environment reflection map that we want to override.
+							s_preprocessedShader = __result = __result.Replace(@"    return float4 ( clamp ( shaded , 0 , 1000 ) , 1 ) ; ", @"    return float4 ( shaded , 1 ) ; ");
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	// Here we compile the modified shader that we saved in a static variable. Since all shader compilation is handled by
+	// the render thread, there are no race conditions.
+	[HarmonyPatch(typeof(ShaderBytecode), nameof(ShaderBytecode.Compile), new Type[] { typeof(string), typeof(string), typeof(string), typeof(ShaderFlags), typeof(EffectFlags), typeof(ShaderMacro[]), typeof(Include), typeof(string), typeof(SecondaryDataFlags), typeof(DataStream) })]
+	static class Patch_ShaderBytecode_Compile
+	{
+		internal static void Prefix(ref string shaderSource, ref ShaderFlags shaderFlags)
+		{
+			if (Patch_MyShaderCompiler_PreprocessShader.s_preprocessedShader != null)
+			{
+				shaderSource = Patch_MyShaderCompiler_PreprocessShader.s_preprocessedShader;
+				Patch_MyShaderCompiler_PreprocessShader.s_preprocessedShader = null;
+				shaderFlags = ShaderFlags.OptimizationLevel3;
 			}
 		}
 	}

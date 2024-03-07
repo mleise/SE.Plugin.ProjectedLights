@@ -7,6 +7,7 @@ using SpaceEngineers.Game.Entities.Blocks;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using VRage.ModAPI;
 using VRageMath;
 using VRageRender;
 
@@ -76,6 +77,7 @@ namespace mleise.ProjectedLightsPlugin
 		}
 	}
 
+	// We replace the light bulb color with a direct copy of the color values.
 	[HarmonyPatch(typeof(MyLightingLogic), nameof(MyLightingLogic.ComputeBulbColor))]
 	static class Patch_MyLightingLogic_ComputeBulbColor
 	{
@@ -83,11 +85,7 @@ namespace mleise.ProjectedLightsPlugin
 		{
 			if (__instance.IsLightHandledByUs())
 			{
-				var color = __instance.Color;
-				byte r = (byte)(Math.Sqrt(color.R / 255.0) * 101 + 1);
-				byte g = (byte)(Math.Sqrt(color.G / 255.0) * 101 + 1);
-				byte b = (byte)(Math.Sqrt(color.B / 255.0) * 101 + 1);
-				__result = new Color(r, g, b);
+				__result = __instance.Color;
 				return false;
 			}
 			return true;
@@ -213,11 +211,9 @@ namespace mleise.ProjectedLightsPlugin
 			}
 			else if (!isInitialCreation)
 			{
-				logic.Initialize();
-				logic.UpdateParents();
-				logic.IsEmissiveMaterialDirty = true;
-				logic.UpdateEmissiveMaterial();
-				logic.UpdateLightProperties();
+				logic.UpdateLightData();
+				logic.NeedsRecreateLights = true;
+				block.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 			}
 		}
 

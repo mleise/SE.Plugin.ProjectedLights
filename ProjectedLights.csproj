@@ -75,6 +75,22 @@
       <HintPath>$(SpaceEngineersPath)\Bin64\VRage.Render.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="VRage.Render11">
+      <HintPath>$(SpaceEngineersPath)\Bin64\VRage.Render11.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SharpDX">
+      <HintPath>$(SpaceEngineersPath)\Bin64\SharpDX.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SharpDX.D3DCompiler">
+      <HintPath>$(SpaceEngineersPath)\Bin64\SharpDX.D3DCompiler.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="PluginLoader">
+      <HintPath>$(SpaceEngineersPath)\Bin64\PluginLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\LightingLogic.cs" />

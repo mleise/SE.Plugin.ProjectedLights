@@ -41,7 +41,7 @@ namespace mleise.ProjectedLightsPlugin
 					break;
 				}
 				else if (plugin.Key.GetType().Namespace == typeof(Main).Namespace)
-		{
+				{
 					var assembly = plugin.Key.GetType().Assembly;
 					var location = assembly.Location;
 					var msg = "A version of \"" + assembly.GetCustomAttribute<AssemblyTitleAttribute>().Title + "\" has already been instantiated via the ";
@@ -54,6 +54,11 @@ namespace mleise.ProjectedLightsPlugin
 			// Patch Space Engineers.
 			Harmony harmony = new Harmony(typeof(Main).Namespace);
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
+
+			// Space Engineers compiles a couple of shaders before plugins have a chance to intercept them.
+			// By triggering a recompile, we can go back and patch them. They will eventually all be cached in
+			// "%APPDATA%\SpaceEngineers\ShaderCache2".
+			AccessTools.Method("VRageRender.MyPixelShaders:Recompile").Invoke(null, null);
 		}
 
 		/// <summary>Called when the game is closed.</summary>
