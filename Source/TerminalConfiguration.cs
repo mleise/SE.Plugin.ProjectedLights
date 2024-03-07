@@ -177,7 +177,7 @@ namespace mleise.ProjectedLightsPlugin
 		internal static void SetIntensity(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Intensity", DefaultIntensity(ref pr), value);
 
 		private static float DefaultMix(ref ParseResult pr) => pr.definition.Mix;
-		internal static float GetDefaultMix(MyFunctionalBlock block) => DefaultMix(ref Parse(block, out _));
+		internal static float GetDefaultMix(MyFunctionalBlock block) => DefaultMix(ref Parse(block, out _)) * 100;
 		internal static float GetMix(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Mix", DefaultMix(ref pr)) * 100;
 		internal static void SetMix(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Mix", DefaultMix(ref pr), value / 100);
 
