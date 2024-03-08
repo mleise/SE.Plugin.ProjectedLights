@@ -265,7 +265,7 @@ namespace mleise.ProjectedLightsPlugin
 				Setter = IniHandler.SetBloom,
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetBloom(x), 1),
 			};
-			bloomSlider.SetLogLimits(0.5f, 200);
+			bloomSlider.SetLogLimits(0.1f, 50);
 			s_terminalControls.Add(bloomSlider);
 
 			s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
