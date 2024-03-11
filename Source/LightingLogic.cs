@@ -5,7 +5,6 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Lights;
 using SpaceEngineers.Game.Entities.Blocks;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using VRage.ModAPI;
 using VRageMath;
@@ -57,7 +56,7 @@ namespace mleise.ProjectedLightsPlugin
 				foreach (MyLight light in logic.Lights)
 				{
 					light.Intensity = vanillaIntensity * light.GlareIntensity;
-					light.ReflectorIntensity = vanillaIntensity * LightDefinition.GLOSS_FACTOR * light.GlareQueryFreqMinMs * (1 - light.GlareIntensity);
+					light.ReflectorIntensity = vanillaIntensity * (1 - light.GlareIntensity);
 				}
 
 				logic.BulbColor = logic.ComputeBulbColor();
@@ -160,13 +159,12 @@ namespace mleise.ProjectedLightsPlugin
 		{
 			var block = (MyFunctionalBlock)s_blockField.GetValue(logic);
 			var definition = IniHandler.GetFullDefinition(block);
+			var lightLocalDatas = logic.LightLocalDatas;
+			var lights = logic.Lights;
 
 			// Processing is enabled for all interior light type blocks that aren't explicitly disabled in the definition.
 			if (!definition.Disabled)
 			{
-				List<MyLightingLogic.LightLocalData> lightLocalDatas = logic.LightLocalDatas;
-				List<MyLight> lights = logic.Lights;
-
 				foreach (var light in lights)
 				{
 					// Mark as handled by us and disable glare so we can use its fields for other purposes.
@@ -177,16 +175,15 @@ namespace mleise.ProjectedLightsPlugin
 					light.GlareIntensity = definition.Mix;
 					// Hijacked to store a bloom intensity coefficient.
 					light.GlareMaxDistance = definition.Bloom;
-					// Hijacked to store an intensity coefficient.
-					light.GlareQueryFreqMinMs = definition.Intensity;
 					// Cast shadows only if explicitly asked for and limit cone accordingly
 					light.CastShadows = definition.CastShadows;
 					// Turn projected texture on and set its cone angle.
 					light.ReflectorOn = definition.Mix < 1;
+					light.LightOn = definition.Mix > 0;
 					light.ReflectorTexture = definition.Texture;
 					light.ReflectorConeDegrees = definition.ConeAngle;
-					light.ReflectorGlossFactor = 1;
-					light.ReflectorDiffuseFactor = light.DiffuseFactor / LightDefinition.GLOSS_FACTOR;
+					light.ReflectorGlossFactor = 1.22f;
+					light.ReflectorDiffuseFactor = definition.Intensity * light.DiffuseFactor;
 				}
 
 				// We first reset the position, then add our offset.
@@ -211,9 +208,22 @@ namespace mleise.ProjectedLightsPlugin
 			}
 			else if (!isInitialCreation)
 			{
-				logic.UpdateLightData();
-				logic.NeedsRecreateLights = true;
-				block.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+				var wasHandledByUs = false;
+				foreach (var light in lights)
+				{
+					if (((uint)light.LightType & (uint)LightFlags.handledByUs) != 0)
+					{
+						wasHandledByUs = true;
+						break;
+					}
+				}
+
+				if (wasHandledByUs)
+				{
+					logic.UpdateLightData();
+					logic.NeedsRecreateLights = true;
+					block.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+				}
 			}
 		}
 
