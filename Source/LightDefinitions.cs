@@ -25,11 +25,11 @@ namespace mleise.ProjectedLightsPlugin
 			["LargeBlockInsetLight"] = new LightDefinition(true)
 			{
 				Texture = @"Textures\Lights\reflector_2.dds",
-				ConeAngle = 163,
-				Forward = +0.813f,
+				ConeAngle = 162,
+				Forward = +1.231f,
 				Rotation = 0,
 				Bloom = 15,
-				Intensity = 7,
+				Intensity = 10,
 				Mix = 0.06f,
 			},
 			["SmallLight"] = new LightDefinition(true)
@@ -37,7 +37,7 @@ namespace mleise.ProjectedLightsPlugin
 				Texture = @"Textures\Particles\Firefly.dds",
 				ConeAngle = 157,
 				Forward = -1.122f,
-				Bloom = 20,
+				Bloom = 10,
 				Intensity = 5,
 				Mix = 0.1f,
 			},
@@ -46,10 +46,10 @@ namespace mleise.ProjectedLightsPlugin
 				Texture = @"Textures\Particles\particle_glare.dds",
 				ConeAngle = 173,
 				Rotation = -45,
-				TextureRotation = 28,
+				TextureRotation = 90,
 				Forward = -1.54f,
-				Bloom = 33,
-				Intensity = 5,
+				Bloom = 8,
+				Intensity = 8,
 				Mix = 0.03f,
 			},
 			["LargeBlockLight_2corner"] = new LightDefinition(true)
@@ -58,16 +58,16 @@ namespace mleise.ProjectedLightsPlugin
 				ConeAngle = 170,
 				Forward = -1.249f,
 				TextureRotation = 0,
-				Bloom = 16,
-				Intensity = 7,
-				Mix = 0.15f,
+				Bloom = 8,
+				Intensity = 13,
+				Mix = 0.14f,
 			},
 			["LargeLightPanel"] = new LightDefinition(true)
 			{
 				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
 				ConeAngle = 178,
 				Forward = -1.155f,
-				Bloom = 3,
+				Bloom = 2,
 				Intensity = 9,
 			},
 			["PassageSciFiLight"] = new LightDefinition(true)
@@ -76,8 +76,8 @@ namespace mleise.ProjectedLightsPlugin
 				SpotTexture = @"Textures\Lights\reflector_2.dds",
 				ConeAngle = 141,
 				Forward = -1.032f,
-				Bloom = 5,
-				Intensity = 6,
+				Bloom = 7,
+				Intensity = 10,
 			},
 			["AirDuctLight"] = new LightDefinition(true)
 			{
@@ -99,7 +99,7 @@ namespace mleise.ProjectedLightsPlugin
 				Forward = -0.96f,
 				Left = -0.75f,
 				Rotation = 50,
-				Bloom = 0.5f,
+				Bloom = 0.12f,
 				Intensity = 2.5f,
 				Mix = 0.4f,
 				CastShadows = true,
@@ -151,7 +151,7 @@ namespace mleise.ProjectedLightsPlugin
 				ConeAngle = 178,
 				Forward = -0.249f,
 				Bloom = 13,
-				Intensity = 1.5f,
+				Intensity = 3,
 				Mix = 0.1f,
 			},
 			["OffsetLight"] = new LightDefinition(true)
@@ -160,8 +160,8 @@ namespace mleise.ProjectedLightsPlugin
 				SpotTexture = @"Textures\Particles\LightRay.dds",
 				ConeAngle = 114,
 				Forward = -0.249f,
-				Bloom = 200,
-				Intensity = 10,
+				Bloom = 25,
+				Intensity = 15,
 				Mix = 0.05f,
 			},
 			["SmallLightPanel"] = new LightDefinition(true)
@@ -170,7 +170,7 @@ namespace mleise.ProjectedLightsPlugin
 				ConeAngle = 175.8f,
 				Forward = -0.249f,
 				TextureRotation = 130,
-				Bloom = 4.6f,
+				Bloom = 3,
 				Intensity = 9,
 			},
 		};
@@ -203,7 +203,5 @@ namespace mleise.ProjectedLightsPlugin
 		/// <summary>Multiplier for the bloom caused by emissive materials. Setting this higher than ~17.4, will cause some LCDs to turn dark due to 8-bit rounding to 0.</summary>
 		internal const float EMISSIVE_BOOST = 10;
 		internal const float EMISSIVE_BOOST_INV = 1 / EMISSIVE_BOOST;
-		/// <summary>Drops the intensity of the gloss effect.</summary>
-		internal const float GLOSS_FACTOR = 0.2f;
 	}
 }
