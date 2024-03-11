@@ -14,6 +14,26 @@ using VRageRender.Messages;
 
 namespace mleise.ProjectedLightsPlugin
 {
+	// Here we make the ambient light contribution of spot lights 8 times weaker to prevent our new projected lights
+	// from just flooding everything with gray light.
+	[HarmonyPatch]
+	static class Patch_MyEnvironmentProbe_GatherLightAmbient
+	{
+		internal static MethodBase TargetMethod()
+		{
+			return AccessTools.Method("VRage.Render11.LightingStage.EnvironmentProbe.MyEnvironmentProbe:GatherLightAmbient");
+		}
+
+		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var codes = (List<CodeInstruction>)instructions;
+			if (codes[264].opcode != OpCodes.Ldc_R4 || (float)codes[264].operand != 2)
+				throw new Exception();
+			codes[264].operand = 16f;
+			return codes;
+		}
+	}
+
 	// Space Engineers can render up to 4 shadows. This patch contains heuristics to ensure the important spot lights are rendered first.
 	[HarmonyPatch]
 	static class Patch_MyLightsRendering_CullSpotLights
@@ -204,7 +224,7 @@ namespace mleise.ProjectedLightsPlugin
 						if (define.Definition == "2")
 						{
 							// This is the forward renderer for the environment reflection map that we want to override.
-							s_preprocessedShader = __result = __result.Replace(@"    return float4 ( clamp ( shaded , 0 , 1000 ) , 1 ) ; ", @"    return float4 ( shaded , 1 ) ; ");
+							s_preprocessedShader = __result = __result.Replace(@"    return float4 ( clamp ( shaded , 0 , 1000 ) , 1 ) ; ", @"    return float4 ( clamp ( shaded , 0 , 3000 ) , 1 ) ; ");
 						}
 						break;
 					}
