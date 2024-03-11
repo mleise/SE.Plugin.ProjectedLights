@@ -201,7 +201,7 @@ namespace mleise.ProjectedLightsPlugin
 		internal bool CastShadows;
 
 		/// <summary>Multiplier for the bloom caused by emissive materials. Setting this higher than ~17.4, will cause some LCDs to turn dark due to 8-bit rounding to 0.</summary>
-		internal const float EMISSIVE_BOOST = 17.4f;
+		internal const float EMISSIVE_BOOST = 10;
 		internal const float EMISSIVE_BOOST_INV = 1 / EMISSIVE_BOOST;
 		/// <summary>Drops the intensity of the gloss effect.</summary>
 		internal const float GLOSS_FACTOR = 0.2f;
