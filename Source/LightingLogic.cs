@@ -29,7 +29,7 @@ namespace mleise.ProjectedLightsPlugin
 
 		internal static bool IsLightHandledByUs(this MyLightingLogic logic)
 		{
-			return logic.Lights.Count == 0 || ((uint)logic.Lights[0].LightType & (uint)LightFlags.handledByUs) != 0;
+			return logic.Lights.Count != 0 && ((uint)logic.Lights[0].LightType & (uint)LightFlags.handledByUs) != 0;
 		}
 	}
 
