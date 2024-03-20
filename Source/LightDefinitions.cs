@@ -142,7 +142,7 @@ namespace mleise.ProjectedLightsPlugin
 				Rotation = 45,
 				TextureRotation = 0,
 				Forward = -0.27f,
-				Bloom = 21.3f,
+				Bloom = 8,
 				Intensity = 4,
 			},
 			["SmallBlockLight_2corner"] = new LightDefinition(true)
@@ -150,7 +150,7 @@ namespace mleise.ProjectedLightsPlugin
 				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
 				ConeAngle = 178,
 				Forward = -0.249f,
-				Bloom = 13,
+				Bloom = 8,
 				Intensity = 3,
 				Mix = 0.1f,
 			},
