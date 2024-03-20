@@ -100,7 +100,7 @@ namespace mleise.ProjectedLightsPlugin
 			{
 				foreach (var light in __instance.Lights)
 				{
-					light.ReflectorColor = __instance.Color;
+					light.Color = light.ReflectorColor = __instance.Color;
 					light.ReflectorFalloff = 0.52f;
 					light.PointLightOffset = __instance.Offset - light.GlareQueryFreqRndMs;
 					light.Range = __instance.Radius;
