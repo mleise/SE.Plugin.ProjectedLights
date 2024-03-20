@@ -211,7 +211,7 @@ namespace mleise.ProjectedLightsPlugin
 	[HarmonyPatch(typeof(MyShaderCompiler), "PreprocessShader")]
 	static class Patch_MyShaderCompiler_PreprocessShader
 	{
-		internal static string s_preprocessedShader;
+		[ThreadStatic] internal static string s_preprocessedShader;
 
 		internal static void Postfix(string filepath, ShaderMacro[] macros, ref string __result)
 		{
@@ -225,16 +225,17 @@ namespace mleise.ProjectedLightsPlugin
 						{
 							// This is the forward renderer for the environment reflection map that we want to override.
 							s_preprocessedShader = __result = __result.Replace(@"    return float4 ( clamp ( shaded , 0 , 1000 ) , 1 ) ; ", @"    return float4 ( clamp ( shaded , 0 , 3000 ) , 1 ) ; ");
+							return;
 						}
 						break;
 					}
 				}
 			}
+			s_preprocessedShader = null;
 		}
 	}
 
-	// Here we compile the modified shader that we saved in a static variable. Since all shader compilation is handled by
-	// the render thread, there are no race conditions.
+	// Here we compile the modified shader that we saved in a static variable.
 	[HarmonyPatch(typeof(ShaderBytecode), nameof(ShaderBytecode.Compile), new Type[] { typeof(string), typeof(string), typeof(string), typeof(ShaderFlags), typeof(EffectFlags), typeof(ShaderMacro[]), typeof(Include), typeof(string), typeof(SecondaryDataFlags), typeof(DataStream) })]
 	static class Patch_ShaderBytecode_Compile
 	{
