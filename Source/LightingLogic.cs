@@ -175,6 +175,8 @@ namespace mleise.ProjectedLightsPlugin
 					light.GlareIntensity = definition.Mix;
 					// Hijacked to store a bloom intensity coefficient.
 					light.GlareMaxDistance = definition.Bloom;
+					// Hijacked to store shadow casting range (squared).
+					light.GlareQuerySize = definition.ShadowRange * definition.ShadowRange;
 					// Cast shadows only if explicitly asked for and limit cone accordingly
 					light.CastShadows = definition.CastShadows;
 					// Turn projected texture on and set its cone angle.

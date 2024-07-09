@@ -45,6 +45,7 @@ namespace mleise.ProjectedLightsPlugin
 			Parse(block, out var pr);
 			pr.definition.Disabled = !GetBool(ref pr, "Enabled", DefaultEnabled(ref pr));
 			pr.definition.CastShadows = GetBool(ref pr, "CastShadows", DefaultCastShadows(ref pr));
+			pr.definition.ShadowRange = GetFloat(ref pr, "ShadowRange", DefaultShadowRange(ref pr));
 			pr.definition.Texture = GetString(ref pr, "Texture", pr.definition.CastShadows ? pr.definition.SpotTexture : pr.definition.Texture);
 			pr.definition.SpotTexture = pr.definition.Texture;
 			pr.definition.TextureRotation = GetFloat(ref pr, "TextureRotation", DefaultTextureRotation(ref pr));
@@ -146,6 +147,11 @@ namespace mleise.ProjectedLightsPlugin
 		internal static bool GetCastShadows(MyFunctionalBlock block) => GetBool(ref Parse(block, out var pr), "CastShadows", DefaultCastShadows(ref pr));
 		internal static void SetCastShadows(MyFunctionalBlock block, bool value) => SetBool(ref Parse(block, out var pr, true), "CastShadows", DefaultCastShadows(ref pr), value);
 
+		private static float DefaultShadowRange(ref ParseResult pr) => pr.definition.ShadowRange;
+		internal static float GetDefaultShadowRange(MyFunctionalBlock block) => DefaultShadowRange(ref Parse(block, out _));
+		internal static float GetShadowRange(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "ShadowRange", DefaultShadowRange(ref pr));
+		internal static void SetShadowRange(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "ShadowRange", DefaultShadowRange(ref pr), value);
+
 		private static float DefaultConeAngle(ref ParseResult pr) => pr.definition.ConeAngle;
 		internal static float GetDefaultConeAngle(MyFunctionalBlock block) => DefaultConeAngle(ref Parse(block, out _));
 		internal static float GetConeAngle(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "ConeAngle", DefaultConeAngle(ref pr));
@@ -227,6 +233,7 @@ namespace mleise.ProjectedLightsPlugin
 		new KeyValuePair<string, string>("Hard Glare", @"Textures\Particles\particle_glare.dds"),
 		new KeyValuePair<string, string>("Rays", @"Textures\Particles\LightRay.dds"),
 		new KeyValuePair<string, string>("Grated", @"Textures\Lights\reflector_large.dds"),
+		new KeyValuePair<string, string>("Barred", @"Textures\Lights\reflector_2.dds"),
 		new KeyValuePair<string, string>("Two Spots Merged", @"Textures\Lights\dual_reflector.dds"),
 		new KeyValuePair<string, string>("Two Spots Refracted", @"Textures\Lights\dual_reflector_2.dds"),
 		new KeyValuePair<string, string>("Two Spots", @"Textures\Lights\dual_reflector_3.dds"),
@@ -246,7 +253,7 @@ namespace mleise.ProjectedLightsPlugin
 				Setter = (x, v) => { if (IniHandler.SetEnabled(x, v)) { x.RaisePropertiesChanged(); } },
 			});
 
-			var mixSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Mix", MySpaceTexts.BlockPropertyTitle_Scale, MySpaceTexts.Blank)
+			var mixSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Mix", MySpaceTexts.ToolbarAction_Decrease, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultMix,
@@ -267,13 +274,6 @@ namespace mleise.ProjectedLightsPlugin
 			};
 			bloomSlider.SetLogLimits(0.1f, 50);
 			s_terminalControls.Add(bloomSlider);
-
-			s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
-			{
-				Enabled = IniHandler.GetEnabled,
-				Getter = IniHandler.GetCastShadows,
-				Setter = IniHandler.SetCastShadows,
-			});
 
 			var coneAngleSlider = new MyTerminalControlSlider<MyFunctionalBlock>("ConeAngle", MySpaceTexts.BlockPropertiesText_MotorCurrentAngle, MySpaceTexts.Blank)
 			{
@@ -361,6 +361,24 @@ namespace mleise.ProjectedLightsPlugin
 			};
 			leftSlider.SetLimits(-5, +5);
 			s_terminalControls.Add(leftSlider); ;
+
+			s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
+			{
+				Enabled = IniHandler.GetEnabled,
+				Getter = IniHandler.GetCastShadows,
+				Setter = IniHandler.SetCastShadows,
+			});
+
+			var shadowRangeSlider = new MyTerminalControlSlider<MyFunctionalBlock>("ShadowRange", MySpaceTexts.Beacon_SafeZone_RangeSlider, MySpaceTexts.Blank)
+			{
+				Enabled = (x) => IniHandler.GetEnabled(x) && IniHandler.GetCastShadows(x),
+				DefaultValueGetter = IniHandler.GetDefaultShadowRange,
+				Getter = IniHandler.GetShadowRange,
+				Setter = IniHandler.SetShadowRange,
+				Writer = (x, result) => result.AppendDecimal((float)IniHandler.GetShadowRange(x), 1).Append(" m"),
+			};
+			shadowRangeSlider.SetLogLimits(1, 3000);
+			s_terminalControls.Add(shadowRangeSlider);
 		}
 
 		internal static void AddTerminalControls(IMyTerminalBlock block, List<IMyTerminalControl> controls)

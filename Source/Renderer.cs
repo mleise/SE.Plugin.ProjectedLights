@@ -75,31 +75,29 @@ namespace mleise.ProjectedLightsPlugin
 			var dataField = typeof(MyLightComponent).GetField("m_data", BindingFlags.Instance | BindingFlags.NonPublic);
 			var originalDataField = typeof(MyLightComponent).GetField("m_originalData", BindingFlags.Instance | BindingFlags.NonPublic);
 
-			// Sort spot lights by distance and turn shadows off.
+			// Sort spot lights by distance.
 			var queryResults = resultsField.GetValue(query);
 			var spotLights = (IList)spotLightsField.GetValue(queryResults);
-			foreach (MyLightComponent myLightComponent in spotLights)
+			for (int i = spotLights.Count - 1; i >= 0; i--)
 			{
-				viewerDistanceSquaredFastField.SetValue(myLightComponent, myLightComponent.Owner.CalculateCameraDistanceSquaredFast());
-				var data = (UpdateRenderLightData)originalDataField.GetValue(myLightComponent);
-				data.CastShadows = false;
-				originalDataField.SetValue(myLightComponent, data);
-			}
-			sortFunction.Invoke(spotLights, new object[] { sortComparer });
+				var myLightComponent = (MyLightComponent)spotLights[i];
+				var distSq = myLightComponent.Owner.CalculateCameraDistanceSquaredFast();
+				viewerDistanceSquaredFastField.SetValue(myLightComponent, distSq);
 
-			// Turn shadows on again for the closest 4 (except if the light is so close to the camera that shadows wont show).
-			int shadowCasters = 0;
-			foreach (MyLightComponent myLightComponent in spotLights)
-			{
-				var castShadows = ((UpdateRenderLightData)dataField.GetValue(myLightComponent)).CastShadows;
-				if (castShadows && (float)viewerDistanceSquaredFastField.GetValue(myLightComponent) >= 0.08f)
+				var data = (UpdateRenderLightData)dataField.GetValue(myLightComponent);
+				if (data.CastShadows && !data.Glare.Enabled)
 				{
-					var data = (UpdateRenderLightData)originalDataField.GetValue(myLightComponent);
-					data.CastShadows = castShadows;
-					originalDataField.SetValue(myLightComponent, data);
-					if (++shadowCasters == 4) break;
+					// This is not a good way to detect if this light is handled by us, but we don't have access to the light logic here.
+					// It will break for any spotlights that have no glare sprite.
+					var originalData = (UpdateRenderLightData)originalDataField.GetValue(myLightComponent);
+					if (originalData.CastShadows == distSq > originalData.Glare.QuerySize)
+					{
+						originalData.CastShadows = !originalData.CastShadows;
+						originalDataField.SetValue(myLightComponent, originalData);
+					}
 				}
 			}
+			sortFunction.Invoke(spotLights, new object[] { sortComparer });
 
 			// Remove any excess lights from the end of the list.
 			var maxLights = (int)maxPointLightsField.GetValue(null);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using static VRage.MyRenderVoxelMaterialData;
 
 namespace mleise.ProjectedLightsPlugin
 {
@@ -14,8 +15,9 @@ namespace mleise.ProjectedLightsPlugin
 			Bloom = 5;
 			Intensity = 3;
 			Rotation = Forward = Left = 0;
-			Mix = 0;
+			Mix = 0.08f;
 			CastShadows = false;
+			ShadowRange = 500;
 		}
 
 		internal static LightDefinition s_generic = new LightDefinition(true);
@@ -43,14 +45,14 @@ namespace mleise.ProjectedLightsPlugin
 			},
 			["LargeBlockLight_1corner"] = new LightDefinition(true)
 			{
-				Texture = @"Textures\Particles\particle_glare.dds",
-				ConeAngle = 173,
+				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
+				ConeAngle = 178.6f,
 				Rotation = -45,
-				TextureRotation = 90,
+				TextureRotation = 77,
 				Forward = -1.54f,
-				Bloom = 8,
-				Intensity = 8,
-				Mix = 0.03f,
+				Bloom = 5,
+				Intensity = 7,
+				Mix = 0.05f,
 			},
 			["LargeBlockLight_2corner"] = new LightDefinition(true)
 			{
@@ -58,7 +60,7 @@ namespace mleise.ProjectedLightsPlugin
 				ConeAngle = 170,
 				Forward = -1.249f,
 				TextureRotation = 0,
-				Bloom = 8,
+				Bloom = 6,
 				Intensity = 13,
 				Mix = 0.14f,
 			},
@@ -68,7 +70,7 @@ namespace mleise.ProjectedLightsPlugin
 				ConeAngle = 178,
 				Forward = -1.155f,
 				Bloom = 2,
-				Intensity = 9,
+				Intensity = 8,
 			},
 			["PassageSciFiLight"] = new LightDefinition(true)
 			{
@@ -76,8 +78,10 @@ namespace mleise.ProjectedLightsPlugin
 				SpotTexture = @"Textures\Lights\reflector_2.dds",
 				ConeAngle = 141,
 				Forward = -1.032f,
-				Bloom = 7,
-				Intensity = 10,
+				Bloom = 8,
+				Intensity = 11,
+				Mix = 0.2f,
+				ShadowRange = 50,
 			},
 			["AirDuctLight"] = new LightDefinition(true)
 			{
@@ -90,6 +94,7 @@ namespace mleise.ProjectedLightsPlugin
 				Bloom = 100,
 				Intensity = 10,
 				Mix = 1,
+				ShadowRange = 5,
 			},
 			["LargeBlockInsetAquarium"] = new LightDefinition(true)
 			{
@@ -103,6 +108,7 @@ namespace mleise.ProjectedLightsPlugin
 				Intensity = 2.5f,
 				Mix = 0.4f,
 				CastShadows = true,
+				ShadowRange = 5,
 			},
 			["LargeBlockInsetKitchen"] = new LightDefinition(true)
 			{
@@ -114,6 +120,19 @@ namespace mleise.ProjectedLightsPlugin
 				Bloom = 3,
 				Intensity = 3,
 				Mix = 0.25f,
+				ShadowRange = 10,
+			},
+			["CorridorNarrowStowage"] = new LightDefinition(true)
+			{
+				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
+				SpotTexture = @"Textures\Lights\dual_reflector.dds",
+				ConeAngle = 177,
+				Forward = -0.916f,
+				Left = -0.23f,
+				Bloom = 24,
+				Intensity = 5.5f,
+				Mix = 0.09f,
+				ShadowRange = 15,
 			},
 			// Small block
 			["SmallBlockInsetLight"] = new LightDefinition(true)
@@ -137,20 +156,19 @@ namespace mleise.ProjectedLightsPlugin
 			},
 			["SmallBlockLight_1corner"] = new LightDefinition(true)
 			{
-				Texture = @"Textures\Particles\Firefly.dds",
-				ConeAngle = 167,
+				Texture = @"Textures\Lights\reflector_2.dds",
+				ConeAngle = 161,
 				Rotation = 45,
-				TextureRotation = 0,
 				Forward = -0.27f,
-				Bloom = 8,
-				Intensity = 4,
+				Bloom = 4,
+				Intensity = 5,
 			},
 			["SmallBlockLight_2corner"] = new LightDefinition(true)
 			{
 				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
 				ConeAngle = 178,
 				Forward = -0.249f,
-				Bloom = 8,
+				Bloom = 4,
 				Intensity = 3,
 				Mix = 0.1f,
 			},
@@ -199,6 +217,8 @@ namespace mleise.ProjectedLightsPlugin
 		internal float Mix;
 		/// <summary>Whether this light should cast shadows by default.</summary>
 		internal bool CastShadows;
+		/// <summary>Maximum range from the light source that the shadow will be rendered at.</summary>
+		internal float ShadowRange;
 
 		/// <summary>Multiplier for the bloom caused by emissive materials. Setting this higher than ~17.4, will cause some LCDs to turn dark due to 8-bit rounding to 0.</summary>
 		internal const float EMISSIVE_BOOST = 10;

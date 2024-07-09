@@ -39,7 +39,7 @@
     <StartArguments>-plugin "$(MSBuildProjectDirectory)\bin\Release\$(AssemblyName).dll" -skipintro -auto_join_world</StartArguments>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="0Harmony, Version=2.3.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>$(SpaceEngineersPath)\Bin64\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
