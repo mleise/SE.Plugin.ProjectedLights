@@ -228,29 +228,75 @@ namespace mleise.ProjectedLightsPlugin
 
 	static class TerminalControls
 	{
-		internal static readonly KeyValuePair<string, string>[] TEXTURES = {
-		new KeyValuePair<string, string>("Default", ""),
-		new KeyValuePair<string, string>("Narrow Spot", @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS"),
-		new KeyValuePair<string, string>("Medium Spot", @"Textures\Particles\AnamorphicFlare.DDS"),
-		new KeyValuePair<string, string>("Wide Spot", @"Textures\Particles\Firefly.dds"),
-		new KeyValuePair<string, string>("Soft Circle", @"Textures\SunGlare\SunCircle.DDS"),
-		new KeyValuePair<string, string>("Hard Circle", @"Textures\GUI\Indicators\EnemyIndicator02.dds"),
-		new KeyValuePair<string, string>("Soft Glare", @"Textures\Particles\GlareLsInteriorLight.dds"),
-		new KeyValuePair<string, string>("Hard Glare", @"Textures\Particles\particle_glare.dds"),
-		new KeyValuePair<string, string>("Rays", @"Textures\Particles\LightRay.dds"),
-		new KeyValuePair<string, string>("Barred", @"Textures\Lights\reflector_large.dds"),
-		new KeyValuePair<string, string>("Grated", @"Textures\Lights\reflector_2.dds"),
-		new KeyValuePair<string, string>("Two Spots Merged", @"Textures\Lights\dual_reflector.dds"),
-		new KeyValuePair<string, string>("Two Spots Refracted", @"Textures\Lights\dual_reflector_2.dds"),
-		new KeyValuePair<string, string>("Two Spots", @"Textures\Lights\dual_reflector_3.dds"),
-		new KeyValuePair<string, string>("Directional", @"Textures\Particles\SciFiEngineThrustMiddle.DDS"),
-		new KeyValuePair<string, string>("(Customized)", ""),
-	};
+		internal static readonly KeyValuePair<MyStringId, string>[] TEXTURES;
 
 		internal static readonly List<IMyTerminalControl> s_terminalControls = new List<IMyTerminalControl>();
 
 		static TerminalControls()
 		{
+			var textures = new List<KeyValuePair<MyStringId, string>>
+			{
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Default"), ""),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Narrow Spot"), @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Medium Spot"), @"Textures\Particles\AnamorphicFlare.DDS"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Wide Spot"), @"Textures\Particles\Firefly.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Soft Circle"), @"Textures\SunGlare\SunCircle.DDS"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Hard Circle"), @"Textures\GUI\Indicators\EnemyIndicator02.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Soft Glare"), @"Textures\Particles\GlareLsInteriorLight.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Hard Glare"), @"Textures\Particles\particle_glare.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Rays"), @"Textures\Particles\LightRay.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Barred"), @"Textures\Lights\reflector_large.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Grated"), @"Textures\Lights\reflector_2.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots Merged"), @"Textures\Lights\dual_reflector.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots Refracted"), @"Textures\Lights\dual_reflector_2.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots"), @"Textures\Lights\dual_reflector_3.dds"),
+				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Directional"), @"Textures\Particles\SciFiEngineThrustMiddle.DDS"),
+				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpacePirates_Translation, @"Textures\FactionLogo\PirateIcon.dds"),
+				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpaceSpiders_Translation, @"Textures\FactionLogo\Spiders.dds"),
+				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_Factorum_Translation, @"Textures\FactionLogo\Factorum.dds"),
+				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_Unknown_Translation, @"Textures\FactionLogo\Unknown.dds"),
+			};
+			for (int i = 1; i <= 4; i++)
+			{
+				textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Miner " + i.ToString()), @"Textures\FactionLogo\Miners\MinerIcon_" + i.ToString() + ".dds"));
+			}
+			for (int i = 1; i <= 5; i++)
+			{
+				textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Trader " + i.ToString()), @"Textures\FactionLogo\Traders\TraderIcon_" + i.ToString() + ".dds"));
+			}
+			for (int i = 1; i <= 16; i++)
+			{
+				textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Builder " + i.ToString()), @"Textures\FactionLogo\Builders\BuilderIcon_" + i.ToString() + ".dds"));
+			}
+			for (int i = 1; i <= 33; i++)
+			{
+				if (i != 25)
+				{
+					textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Other " + i.ToString()), @"Textures\FactionLogo\Others\OtherIcon_" + i.ToString() + ".dds"));
+				}
+			}
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Cross, @"Textures\Models\Cross.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Danger, @"Textures\Models\DangerZone.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Construction, @"Textures\Models\UnderConstruction.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Angry, @"Textures\Models\Emotes\Angry.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Annoyed, @"Textures\Models\Emotes\Annoyed.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Confused, @"Textures\Models\Emotes\Confused.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Crying, @"Textures\Models\Emotes\Crying.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Dead, @"Textures\Models\Emotes\Dead.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Evil, @"Textures\Models\Emotes\Evil.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Happy, @"Textures\Models\Emotes\Happy.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Love, @"Textures\Models\Emotes\Love.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Neutral, @"Textures\Models\Emotes\Neutral.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Sad, @"Textures\Models\Emotes\Sad.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Shocked, @"Textures\Models\Emotes\Shocked.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Skeptical, @"Textures\Models\Emotes\Skeptical.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Sleepy, @"Textures\Models\Emotes\Sleepy.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Suspicious_Left, @"Textures\Models\Emotes\Suspicious_Left.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Suspicious_Right, @"Textures\Models\Emotes\Suspicious_Right.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Wink, @"Textures\Models\Emotes\Wink.dds"));
+			textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("(Customized)"), ""));
+			TEXTURES = textures.ToArray();
+
 			s_terminalControls.Add(new MyTerminalControlSeparator<MyFunctionalBlock>());
 
 			s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("ProjectedLightsEnabled", MySpaceTexts.DisplayName_Block_ReflectorLight)
@@ -299,7 +345,7 @@ namespace mleise.ProjectedLightsPlugin
 				{
 					for (int i = 0; i < TEXTURES.Length; i++)
 					{
-						list.Add(new VRage.ModAPI.MyTerminalControlComboBoxItem { Key = i, Value = MyStringId.GetOrCompute(TEXTURES[i].Key) });
+						list.Add(new VRage.ModAPI.MyTerminalControlComboBoxItem { Key = i, Value = TEXTURES[i].Key });
 					}
 				},
 				Getter = (x) =>

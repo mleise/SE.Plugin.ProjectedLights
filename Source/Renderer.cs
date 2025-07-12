@@ -222,7 +222,9 @@ namespace mleise.ProjectedLightsPlugin
 						if (define.Definition == "2")
 						{
 							// This is the forward renderer for the environment reflection map that we want to override.
-							s_preprocessedShader = __result = __result.Replace(@"    return float4 ( clamp ( shaded , 0 , 1000 ) , 1 ) ; ", @"    return float4 ( clamp ( shaded , 0 , 3000 ) , 1 ) ; ");
+							const string oldValue = @"    return float4 ( clamp ( shaded , 0 , 1000 ) , 1 ) ; ";
+							const string newValue = @"    return float4 ( clamp ( shaded , 0 , 3000 ) , 1 ) ; ";
+							s_preprocessedShader = __result = __result.Replace(oldValue, newValue);
 							return;
 						}
 						break;
