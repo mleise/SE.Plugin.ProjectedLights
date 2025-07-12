@@ -1,10 +1,8 @@
 ﻿using avaness.PluginLoader;
 using HarmonyLib;
-using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using VRage.Game.Components;
 using VRage.Plugins;
 using VRage.Utils;
 
@@ -66,19 +64,5 @@ namespace mleise.ProjectedLightsPlugin
 
 		/// <summary>Called at the end of each game update at 60 Hz, with only audio trailing it.</summary>
 		public void Update() {}
-	}
-
-	[MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
-	sealed class AdditionalLightOptions : MySessionComponentBase
-	{
-		public override void LoadData()
-		{
-			MyAPIGateway.TerminalControls.CustomControlGetter += TerminalControls.AddTerminalControls;
-		}
-
-		protected override void UnloadData()
-		{
-			MyAPIGateway.TerminalControls.CustomControlGetter -= TerminalControls.AddTerminalControls;
-		}
 	}
 }

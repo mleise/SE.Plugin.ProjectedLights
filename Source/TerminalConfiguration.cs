@@ -4,8 +4,6 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
-using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces.Terminal;
 using SpaceEngineers.Game.Entities.Blocks;
 using System;
 using System.Collections.Generic;
@@ -226,36 +224,34 @@ namespace mleise.ProjectedLightsPlugin
 		}
 	}
 
-	static class TerminalControls
+	[HarmonyPatch(typeof(MyLightingBlock), "CreateTerminalControls")]
+	static class Patch_MyInteriorLight_CreateTerminalControls
 	{
-		internal static readonly KeyValuePair<MyStringId, string>[] TEXTURES;
+		internal static readonly List<KeyValuePair<MyStringId, string>> textures = new List<KeyValuePair<MyStringId, string>>() {
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Default"), ""),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Narrow Spot"), @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Medium Spot"), @"Textures\Particles\AnamorphicFlare.DDS"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Wide Spot"), @"Textures\Particles\Firefly.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Soft Circle"), @"Textures\SunGlare\SunCircle.DDS"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Hard Circle"), @"Textures\GUI\Indicators\EnemyIndicator02.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Soft Glare"), @"Textures\Particles\GlareLsInteriorLight.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Hard Glare"), @"Textures\Particles\particle_glare.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Rays"), @"Textures\Particles\LightRay.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Barred"), @"Textures\Lights\reflector_large.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Grated"), @"Textures\Lights\reflector_2.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots Merged"), @"Textures\Lights\dual_reflector.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots Refracted"), @"Textures\Lights\dual_reflector_2.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots"), @"Textures\Lights\dual_reflector_3.dds"),
+			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Directional"), @"Textures\Particles\SciFiEngineThrustMiddle.DDS"),
+			new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpacePirates_Translation, @"Textures\FactionLogo\PirateIcon.dds"),
+			new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpaceSpiders_Translation, @"Textures\FactionLogo\Spiders.dds"),
+			new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_Factorum_Translation, @"Textures\FactionLogo\Factorum.dds"),
+			new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_Unknown_Translation, @"Textures\FactionLogo\Unknown.dds"),
+		};
+		private static bool s_skipPostfix;
 
-		internal static readonly List<IMyTerminalControl> s_terminalControls = new List<IMyTerminalControl>();
-
-		static TerminalControls()
+		static Patch_MyInteriorLight_CreateTerminalControls()
 		{
-			var textures = new List<KeyValuePair<MyStringId, string>>
-			{
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Default"), ""),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Narrow Spot"), @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Medium Spot"), @"Textures\Particles\AnamorphicFlare.DDS"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Wide Spot"), @"Textures\Particles\Firefly.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Soft Circle"), @"Textures\SunGlare\SunCircle.DDS"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Hard Circle"), @"Textures\GUI\Indicators\EnemyIndicator02.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Soft Glare"), @"Textures\Particles\GlareLsInteriorLight.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Hard Glare"), @"Textures\Particles\particle_glare.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Rays"), @"Textures\Particles\LightRay.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Barred"), @"Textures\Lights\reflector_large.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Grated"), @"Textures\Lights\reflector_2.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots Merged"), @"Textures\Lights\dual_reflector.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots Refracted"), @"Textures\Lights\dual_reflector_2.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots"), @"Textures\Lights\dual_reflector_3.dds"),
-				new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Directional"), @"Textures\Particles\SciFiEngineThrustMiddle.DDS"),
-				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpacePirates_Translation, @"Textures\FactionLogo\PirateIcon.dds"),
-				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpaceSpiders_Translation, @"Textures\FactionLogo\Spiders.dds"),
-				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_Factorum_Translation, @"Textures\FactionLogo\Factorum.dds"),
-				new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_Unknown_Translation, @"Textures\FactionLogo\Unknown.dds"),
-			};
 			for (int i = 1; i <= 4; i++)
 			{
 				textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Miner " + i.ToString()), @"Textures\FactionLogo\Miners\MinerIcon_" + i.ToString() + ".dds"));
@@ -295,17 +291,30 @@ namespace mleise.ProjectedLightsPlugin
 			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Suspicious_Right, @"Textures\Models\Emotes\Suspicious_Right.dds"));
 			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Wink, @"Textures\Models\Emotes\Wink.dds"));
 			textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("(Customized)"), ""));
-			TEXTURES = textures.ToArray();
+			textures.TrimExcess();
+		}
 
-			s_terminalControls.Add(new MyTerminalControlSeparator<MyFunctionalBlock>());
+		internal static void Prefix()
+		{
+			s_skipPostfix = MyTerminalControlFactory.AreControlsCreated<MyLightingBlock>();
+		}
 
-			s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("ProjectedLightsEnabled", MySpaceTexts.DisplayName_Block_ReflectorLight)
+		internal static void Postfix()
+		{
+			if (s_skipPostfix)
+			{
+				return;
+			}
+
+			MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyLightingBlock>());
+
+			MyTerminalControlFactory.AddControl(new MyTerminalControlOnOffSwitch<MyLightingBlock>("ProjectedLightsEnabled", MySpaceTexts.DisplayName_Block_ReflectorLight)
 			{
 				Getter = IniHandler.GetEnabled,
 				Setter = (x, v) => { if (IniHandler.SetEnabled(x, v)) { x.RaisePropertiesChanged(); } },
 			});
 
-			var mixSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Mix", MySpaceTexts.ToolbarAction_Decrease, MySpaceTexts.Blank)
+			var mixSlider = new MyTerminalControlSlider<MyLightingBlock>("Mix", MySpaceTexts.ToolbarAction_Decrease, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultMix,
@@ -314,9 +323,9 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetMix(x), 0).Append("%"),
 			};
 			mixSlider.SetLimits(0, 100);
-			s_terminalControls.Add(mixSlider);
+			MyTerminalControlFactory.AddControl(mixSlider);
 
-			var bloomSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Bloom", MyStringId.GetOrCompute("Bloom"), MySpaceTexts.Blank)
+			var bloomSlider = new MyTerminalControlSlider<MyLightingBlock>("Bloom", MyStringId.GetOrCompute("Bloom"), MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultBloom,
@@ -325,9 +334,9 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetBloom(x), 1),
 			};
 			bloomSlider.SetLogLimits(0.1f, 50);
-			s_terminalControls.Add(bloomSlider);
+			MyTerminalControlFactory.AddControl(bloomSlider);
 
-			var coneAngleSlider = new MyTerminalControlSlider<MyFunctionalBlock>("ConeAngle", MySpaceTexts.BlockPropertiesText_MotorCurrentAngle, MySpaceTexts.Blank)
+			var coneAngleSlider = new MyTerminalControlSlider<MyLightingBlock>("ConeAngle", MySpaceTexts.BlockPropertiesText_MotorCurrentAngle, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultConeAngle,
@@ -336,41 +345,41 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetConeAngle(x), 1).Append(" °"),
 			};
 			coneAngleSlider.SetLimits(0, 180);
-			s_terminalControls.Add(coneAngleSlider);
+			MyTerminalControlFactory.AddControl(coneAngleSlider);
 
-			s_terminalControls.Add(new MyTerminalControlCombobox<MyFunctionalBlock>("Texture", MySpaceTexts.BlockPropertyTitle_LCDScreenDefinitionsTextures, MySpaceTexts.Blank)
+			MyTerminalControlFactory.AddControl(new MyTerminalControlCombobox<MyLightingBlock>("Texture", MySpaceTexts.BlockPropertyTitle_LCDScreenDefinitionsTextures, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				ComboBoxContent = (list) =>
 				{
-					for (int i = 0; i < TEXTURES.Length; i++)
+					for (int i = 0; i < textures.Count; i++)
 					{
-						list.Add(new VRage.ModAPI.MyTerminalControlComboBoxItem { Key = i, Value = TEXTURES[i].Key });
+						list.Add(new VRage.ModAPI.MyTerminalControlComboBoxItem { Key = i, Value = textures[i].Key });
 					}
 				},
 				Getter = (x) =>
 				{
 					var texturePath = IniHandler.GetTexture(x);
 					if (texturePath == "") return 0;
-					for (int i = 1; i < TEXTURES.Length - 1; i++)
+					for (int i = 1; i < textures.Count - 1; i++)
 					{
-						if (TEXTURES[i].Value == texturePath)
+						if (textures[i].Value == texturePath)
 						{
 							return i;
 						}
 					}
-					return TEXTURES.Length - 1;
+					return textures.Count - 1;
 				},
 				Setter = (x, v) =>
 				{
-					if (v != TEXTURES.Length - 1)
+					if (v != textures.Count - 1)
 					{
-						IniHandler.SetTexture(x, TEXTURES[v].Value);
+						IniHandler.SetTexture(x, textures[(int)v].Value);
 					}
 				},
 			});
 
-			var rotationSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Rotation", MySpaceTexts.HelpScreen_ControllerRotation_Pitch, MySpaceTexts.Blank)
+			var rotationSlider = new MyTerminalControlSlider<MyLightingBlock>("Rotation", MySpaceTexts.HelpScreen_ControllerRotation_Pitch, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultRotation,
@@ -379,9 +388,9 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetRotation(x), 1).Append(" °"),
 			};
 			rotationSlider.SetLimits(-180, +180);
-			s_terminalControls.Add(rotationSlider);
+			MyTerminalControlFactory.AddControl(rotationSlider);
 
-			var forwardSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Forward", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetZ, MySpaceTexts.Blank)
+			var forwardSlider = new MyTerminalControlSlider<MyLightingBlock>("Forward", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetZ, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultForward,
@@ -390,9 +399,9 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetForward(x), 2).Append(" m"),
 			};
 			forwardSlider.SetLimits(-5, +5);
-			s_terminalControls.Add(forwardSlider);
+			MyTerminalControlFactory.AddControl(forwardSlider);
 
-			var leftSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Left", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetX, MySpaceTexts.Blank)
+			var leftSlider = new MyTerminalControlSlider<MyLightingBlock>("Left", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetX, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultLeft,
@@ -401,9 +410,9 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetLeft(x), 2).Append(" m"),
 			};
 			leftSlider.SetLimits(-5, +5);
-			s_terminalControls.Add(leftSlider); ;
+			MyTerminalControlFactory.AddControl(leftSlider);
 
-			var upSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Up", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetY, MySpaceTexts.Blank)
+			var upSlider = new MyTerminalControlSlider<MyLightingBlock>("Up", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetY, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultUp,
@@ -412,9 +421,9 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetUp(x), 2).Append(" m"),
 			};
 			upSlider.SetLimits(-5, +5);
-			s_terminalControls.Add(upSlider); ;
+			MyTerminalControlFactory.AddControl(upSlider);
 
-			var textureRotationSlider = new MyTerminalControlSlider<MyFunctionalBlock>("TextureRotation", MySpaceTexts.HelpScreen_ControllerRotation_Roll, MySpaceTexts.Blank)
+			var textureRotationSlider = new MyTerminalControlSlider<MyLightingBlock>("TextureRotation", MySpaceTexts.HelpScreen_ControllerRotation_Roll, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
 				DefaultValueGetter = IniHandler.GetDefaultTextureRotation,
@@ -423,16 +432,16 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal(IniHandler.GetTextureRotation(x), 1).Append(" °"),
 			};
 			textureRotationSlider.SetLimits(-180, +180);
-			s_terminalControls.Add(textureRotationSlider);
+			MyTerminalControlFactory.AddControl(textureRotationSlider);
 
-			s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
+			MyTerminalControlFactory.AddControl(new MyTerminalControlOnOffSwitch<MyLightingBlock>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
 			{
 				Enabled = IniHandler.GetEnabled,
 				Getter = IniHandler.GetCastShadows,
 				Setter = IniHandler.SetCastShadows,
 			});
 
-			var shadowRangeSlider = new MyTerminalControlSlider<MyFunctionalBlock>("ShadowRange", MySpaceTexts.Beacon_SafeZone_RangeSlider, MySpaceTexts.Blank)
+			var shadowRangeSlider = new MyTerminalControlSlider<MyLightingBlock>("ShadowRange", MySpaceTexts.Beacon_SafeZone_RangeSlider, MySpaceTexts.Blank)
 			{
 				Enabled = (x) => IniHandler.GetEnabled(x) && IniHandler.GetCastShadows(x),
 				DefaultValueGetter = IniHandler.GetDefaultShadowRange,
@@ -441,15 +450,7 @@ namespace mleise.ProjectedLightsPlugin
 				Writer = (x, result) => result.AppendDecimal((float)IniHandler.GetShadowRange(x), 1).Append(" m"),
 			};
 			shadowRangeSlider.SetLogLimits(1, 3000);
-			s_terminalControls.Add(shadowRangeSlider);
-		}
-
-		internal static void AddTerminalControls(IMyTerminalBlock block, List<IMyTerminalControl> controls)
-		{
-			if (block is MyInteriorLight)
-			{
-				controls.AddList(s_terminalControls);
-			}
+			MyTerminalControlFactory.AddControl(shadowRangeSlider);
 		}
 	}
 }
