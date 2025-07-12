@@ -122,7 +122,6 @@ namespace mleise.ProjectedLightsPlugin
 	{
 		private static FieldInfo s_blinkOnFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_blinkOn");
 		private static FieldInfo s_pointLightEmissiveMaterialFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_pointLightEmissiveMaterial");
-		private static FieldInfo s_spotLightEmissiveMaterialFieldInfo = AccessTools.DeclaredField(typeof(MyLightingLogic), "m_spotLightEmissiveMaterial");
 
 		internal static bool Prefix(MyLightingLogic __instance, uint renderId)
 		{
@@ -133,12 +132,9 @@ namespace mleise.ProjectedLightsPlugin
 					var blinkOn = (bool)s_blinkOnFieldInfo.GetValue(__instance);
 					var intensity = blinkOn ? __instance.CurrentLightPower * __instance.Intensity * __instance.Lights[0].GlareMaxDistance : 0;
 					var pointLightEmissiveMaterial = (string)s_pointLightEmissiveMaterialFieldInfo.GetValue(__instance);
-					var spotLightEmissiveMaterial = (string)s_spotLightEmissiveMaterialFieldInfo.GetValue(__instance);
 					MyRenderProxy.UpdateModelProperties(renderId, pointLightEmissiveMaterial, 0, 0, __instance.BulbColor, intensity);
-					if (!string.IsNullOrEmpty(spotLightEmissiveMaterial))
-					{
-						MyRenderProxy.UpdateModelProperties(renderId, spotLightEmissiveMaterial, 0, 0, __instance.BulbColor, intensity);
-					}
+					// This line is a hack for a bug in the Signal DLC wide corridor ("CorridorLight"), that needs "Emissive0" instead of "Emissive".
+					MyRenderProxy.UpdateModelProperties(renderId, "Emissive0", 0, 0, __instance.BulbColor, intensity);
 				}
 				return false;
 			}
@@ -196,8 +192,9 @@ namespace mleise.ProjectedLightsPlugin
 					var oldTranslation = lightData.LocalMatrix.Translation;
 					lightData.LocalMatrix = Matrix.Multiply(lightData.LocalMatrix, Matrix.CreateFromAxisAngle(lightData.LocalMatrix.Right, MathHelper.ToRadians(definition.Rotation)));
 					var leftBeforeRoll = lightData.LocalMatrix.Left;
+					var upBeforeRoll = lightData.LocalMatrix.Up;
 					lightData.LocalMatrix = Matrix.Multiply(lightData.LocalMatrix, Matrix.CreateFromAxisAngle(lightData.LocalMatrix.Forward, MathHelper.ToRadians(definition.TextureRotation)));
-					lightData.LocalMatrix.Translation = lightData.LocalMatrix.Forward * definition.Forward + leftBeforeRoll * definition.Left;
+					lightData.LocalMatrix.Translation = lightData.LocalMatrix.Forward * definition.Forward + leftBeforeRoll * definition.Left + upBeforeRoll * definition.Up;
 					// Hijacked to fix point light offset after we moved the origin.
 					lights[i].GlareQueryFreqRndMs = Vector3.Dot(lightData.LocalMatrix.Forward, lightData.LocalMatrix.Translation - oldTranslation);
 				}

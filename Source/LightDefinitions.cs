@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using static VRage.MyRenderVoxelMaterialData;
 
 namespace mleise.ProjectedLightsPlugin
 {
@@ -14,10 +13,10 @@ namespace mleise.ProjectedLightsPlugin
 			ConeAngle = 178;
 			Bloom = 5;
 			Intensity = 3;
-			Rotation = Forward = Left = 0;
+			Rotation = Forward = Left = Up = 0;
 			Mix = 0.08f;
 			CastShadows = false;
-			ShadowRange = 500;
+			ShadowRange = 10;
 		}
 
 		internal static LightDefinition s_generic = new LightDefinition(true);
@@ -28,7 +27,7 @@ namespace mleise.ProjectedLightsPlugin
 			{
 				Texture = @"Textures\Lights\reflector_2.dds",
 				ConeAngle = 162,
-				Forward = +1.231f,
+				Forward = +1.263f, // Do not reduce, may cause light to "turn off" due to rounding errors when moving camera.
 				Rotation = 0,
 				Bloom = 15,
 				Intensity = 10,
@@ -45,14 +44,15 @@ namespace mleise.ProjectedLightsPlugin
 			},
 			["LargeBlockLight_1corner"] = new LightDefinition(true)
 			{
-				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
-				ConeAngle = 178.6f,
+				Texture = @"Textures\Particles\LightRay.dds",
+				ConeAngle = 175,
 				Rotation = -45,
-				TextureRotation = 77,
+				TextureRotation = -124.8f,
 				Forward = -1.54f,
-				Bloom = 5,
+				Bloom = 5.5f,
 				Intensity = 7,
 				Mix = 0.05f,
+				ShadowRange = 20,
 			},
 			["LargeBlockLight_2corner"] = new LightDefinition(true)
 			{
@@ -69,8 +69,9 @@ namespace mleise.ProjectedLightsPlugin
 				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
 				ConeAngle = 178,
 				Forward = -1.155f,
-				Bloom = 2,
+				Bloom = 0.5f,
 				Intensity = 8,
+				ShadowRange = 0,
 			},
 			["PassageSciFiLight"] = new LightDefinition(true)
 			{
@@ -78,7 +79,7 @@ namespace mleise.ProjectedLightsPlugin
 				SpotTexture = @"Textures\Lights\reflector_2.dds",
 				ConeAngle = 141,
 				Forward = -1.032f,
-				Bloom = 8,
+				Bloom = 7,
 				Intensity = 11,
 				Mix = 0.2f,
 				ShadowRange = 50,
@@ -120,19 +121,7 @@ namespace mleise.ProjectedLightsPlugin
 				Bloom = 3,
 				Intensity = 3,
 				Mix = 0.25f,
-				ShadowRange = 10,
-			},
-			["CorridorNarrowStowage"] = new LightDefinition(true)
-			{
-				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
-				SpotTexture = @"Textures\Lights\dual_reflector.dds",
-				ConeAngle = 177,
-				Forward = -0.916f,
-				Left = -0.23f,
-				Bloom = 24,
-				Intensity = 5.5f,
-				Mix = 0.09f,
-				ShadowRange = 15,
+				ShadowRange = 3,
 			},
 			// Small block
 			["SmallBlockInsetLight"] = new LightDefinition(true)
@@ -191,6 +180,56 @@ namespace mleise.ProjectedLightsPlugin
 				Bloom = 3,
 				Intensity = 9,
 			},
+			// Signal Update
+			["TrussPillarLight2"] = new LightDefinition(false)
+			{
+				Texture = @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS",
+				SpotTexture = @"Textures\SunGlare\SunCircle.DDS",
+				ConeAngle = 176,
+				Intensity = 2,
+				Bloom = 50,
+				Forward = 0.48f,
+				Left = -0.08f,
+				Up = 0.053f,
+				ShadowRange = 20,
+				Mix = 0.9f,
+			},
+			["TrussPillarLightSmall2"] = new LightDefinition(false)
+			{
+				Texture = @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS",
+				SpotTexture = @"Textures\SunGlare\SunCircle.DDS",
+				ConeAngle = 176,
+				Intensity = 4,
+				Bloom = 50,
+				Forward = -0.06f,
+				Left = 0.02f,
+				Up = 0.046f,
+				ShadowRange = 20,
+				Mix = 0.1f,
+			},
+			["CorridorLight2"] = new LightDefinition(true)
+			{
+				Texture = @"Textures\Lights\reflector_large.dds",
+				TextureRotation = 0,
+				ConeAngle = 158.663f,
+				Intensity = 16,
+				Bloom = 20,
+				Forward = -1.16f,
+				ShadowRange = 50,
+				Mix = 0.3f,
+			},
+			["CorridorNarrowStowage"] = new LightDefinition(true)
+			{
+				Texture = @"Textures\Particles\GlareLsInteriorLight.dds",
+				SpotTexture = @"Textures\Lights\dual_reflector.dds",
+				ConeAngle = 177,
+				Forward = -0.916f,
+				Left = -0.23f,
+				Bloom = 24,
+				Intensity = 5.5f,
+				Mix = 0.09f,
+				ShadowRange = 15,
+			},
 		};
 
 		/// <summary>Marker flag that just disables processing by this plugin for a light.</summary>
@@ -211,6 +250,8 @@ namespace mleise.ProjectedLightsPlugin
 		internal float Forward;
 		/// <summary>How far the light source is moved left to prevent the model itself from casting shadows.</summary>
 		internal float Left;
+		/// <summary>How far the light source is moved up to prevent the model itself from casting shadows.</summary>
+		internal float Up;
 		/// <summary>How far the light is rotated. Useful for corner lights, to point them 45° away from "forward".</summary>
 		internal float Rotation;
 		/// <summary>How much of the point light we want to keep (linear interpolation 0 to 1). Setting to 0 removes point light for performance.</summary>

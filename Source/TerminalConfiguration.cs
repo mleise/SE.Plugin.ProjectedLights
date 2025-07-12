@@ -48,13 +48,14 @@ namespace mleise.ProjectedLightsPlugin
 			pr.definition.ShadowRange = GetFloat(ref pr, "ShadowRange", DefaultShadowRange(ref pr));
 			pr.definition.Texture = GetString(ref pr, "Texture", pr.definition.CastShadows ? pr.definition.SpotTexture : pr.definition.Texture);
 			pr.definition.SpotTexture = pr.definition.Texture;
-			pr.definition.TextureRotation = GetFloat(ref pr, "TextureRotation", DefaultTextureRotation(ref pr));
-			pr.definition.ConeAngle = Math.Min(GetFloat(ref pr, "ConeAngle", DefaultConeAngle(ref pr)), pr.definition.CastShadows ? 136 : 360);
+			pr.definition.ConeAngle = Math.Min(GetFloat(ref pr, "ConeAngle", DefaultConeAngle(ref pr)), pr.definition.CastShadows ? 136 : 180);
 			pr.definition.Bloom = GetFloat(ref pr, "Bloom", DefaultBloom(ref pr));
 			pr.definition.Intensity = GetFloat(ref pr, "Intensity", pr.definition.Intensity);
+			pr.definition.Rotation = GetFloat(ref pr, "Rotation", pr.definition.Rotation);
 			pr.definition.Forward = GetFloat(ref pr, "Forward", pr.definition.Forward);
 			pr.definition.Left = GetFloat(ref pr, "Left", pr.definition.Left);
-			pr.definition.Rotation = GetFloat(ref pr, "Rotation", pr.definition.Rotation);
+			pr.definition.Up = GetFloat(ref pr, "Up", pr.definition.Up);
+			pr.definition.TextureRotation = GetFloat(ref pr, "TextureRotation", DefaultTextureRotation(ref pr));
 			pr.definition.Mix = GetFloat(ref pr, "Mix", pr.definition.Mix);
 			return pr.definition;
 		}
@@ -167,6 +168,11 @@ namespace mleise.ProjectedLightsPlugin
 		internal static float GetLeft(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Left", DefaultLeft(ref pr));
 		internal static void SetLeft(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Left", DefaultLeft(ref pr), value);
 
+		private static float DefaultUp(ref ParseResult pr) => pr.definition.Up;
+		internal static float GetDefaultUp(MyFunctionalBlock block) => DefaultUp(ref Parse(block, out _));
+		internal static float GetUp(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Up", DefaultUp(ref pr));
+		internal static void SetUp(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Up", DefaultUp(ref pr), value);
+
 		private static float DefaultRotation(ref ParseResult pr) => pr.definition.Rotation;
 		internal static float GetDefaultRotation(MyFunctionalBlock block) => DefaultRotation(ref Parse(block, out _));
 		internal static float GetRotation(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Rotation", DefaultRotation(ref pr));
@@ -232,8 +238,8 @@ namespace mleise.ProjectedLightsPlugin
 		new KeyValuePair<string, string>("Soft Glare", @"Textures\Particles\GlareLsInteriorLight.dds"),
 		new KeyValuePair<string, string>("Hard Glare", @"Textures\Particles\particle_glare.dds"),
 		new KeyValuePair<string, string>("Rays", @"Textures\Particles\LightRay.dds"),
-		new KeyValuePair<string, string>("Grated", @"Textures\Lights\reflector_large.dds"),
-		new KeyValuePair<string, string>("Barred", @"Textures\Lights\reflector_2.dds"),
+		new KeyValuePair<string, string>("Barred", @"Textures\Lights\reflector_large.dds"),
+		new KeyValuePair<string, string>("Grated", @"Textures\Lights\reflector_2.dds"),
 		new KeyValuePair<string, string>("Two Spots Merged", @"Textures\Lights\dual_reflector.dds"),
 		new KeyValuePair<string, string>("Two Spots Refracted", @"Textures\Lights\dual_reflector_2.dds"),
 		new KeyValuePair<string, string>("Two Spots", @"Textures\Lights\dual_reflector_3.dds"),
@@ -318,17 +324,6 @@ namespace mleise.ProjectedLightsPlugin
 				},
 			});
 
-			var textureRotationSlider = new MyTerminalControlSlider<MyFunctionalBlock>("TextureRotation", MySpaceTexts.HelpScreen_ControllerRotation_Roll, MySpaceTexts.Blank)
-			{
-				Enabled = IniHandler.GetEnabled,
-				DefaultValueGetter = IniHandler.GetDefaultTextureRotation,
-				Getter = IniHandler.GetTextureRotation,
-				Setter = IniHandler.SetTextureRotation,
-				Writer = (x, result) => result.AppendDecimal(IniHandler.GetTextureRotation(x), 1).Append(" °"),
-			};
-			textureRotationSlider.SetLimits(-180, +180);
-			s_terminalControls.Add(textureRotationSlider);
-
 			var rotationSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Rotation", MySpaceTexts.HelpScreen_ControllerRotation_Pitch, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
@@ -361,6 +356,28 @@ namespace mleise.ProjectedLightsPlugin
 			};
 			leftSlider.SetLimits(-5, +5);
 			s_terminalControls.Add(leftSlider); ;
+
+			var upSlider = new MyTerminalControlSlider<MyFunctionalBlock>("Up", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetY, MySpaceTexts.Blank)
+			{
+				Enabled = IniHandler.GetEnabled,
+				DefaultValueGetter = IniHandler.GetDefaultUp,
+				Getter = IniHandler.GetUp,
+				Setter = IniHandler.SetUp,
+				Writer = (x, result) => result.AppendDecimal(IniHandler.GetUp(x), 2).Append(" m"),
+			};
+			upSlider.SetLimits(-5, +5);
+			s_terminalControls.Add(upSlider); ;
+
+			var textureRotationSlider = new MyTerminalControlSlider<MyFunctionalBlock>("TextureRotation", MySpaceTexts.HelpScreen_ControllerRotation_Roll, MySpaceTexts.Blank)
+			{
+				Enabled = IniHandler.GetEnabled,
+				DefaultValueGetter = IniHandler.GetDefaultTextureRotation,
+				Getter = IniHandler.GetTextureRotation,
+				Setter = IniHandler.SetTextureRotation,
+				Writer = (x, result) => result.AppendDecimal(IniHandler.GetTextureRotation(x), 1).Append(" °"),
+			};
+			textureRotationSlider.SetLimits(-180, +180);
+			s_terminalControls.Add(textureRotationSlider);
 
 			s_terminalControls.Add(new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("CastShadows", MySpaceTexts.PlayerCharacterColorDefault)
 			{
