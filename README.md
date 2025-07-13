@@ -27,23 +27,13 @@ To change the settings, I added new terminal controls to all interior lights. Ch
 
 ## Installation
 
-1. You will need the [Space Engineers Launcher](https://github.com/sepluginloader/SpaceEngineersLauncher) installed. Instructions are in the link.
+1. You will need [Pulsar](https://github.com/StarCpt/Pulsar-Installer?tab=readme-ov-file#pulsar-installer) installed. It is recommended to check the "Add to SE launch options" box for Steam to pick up Pulsar and its plugins. Otherwise you would have to manually launch the `SpaceEngineersLauncher.exe`.
+
+2. Once in the game, click on the new "Plugins" button in the main menu.
   
-2. Optionally, if you want to keep launching Space Engineers directly through Steam, do the following:
+3. Type "Projected Lights" in the search bar, then check the box next to the search result.
   
-  1. Right-click on Space Engineers and select "Properties..."
-    
-  2. At the bottom of the "General" tab you'll find a text box labeled "Advanced users may choose to enter modifications to their launch options". We are advanced users.
-    
-  3. Type the full path to the launcher into that box, optionally add `-skipintro` to skip over the company logo video, and add `%command%`. So the full line may read like this:
-    `C:\Program Files (x86)\Steam\steamapps\common\SpaceEngineers\Bin64\SpaceEngineersLauncher.exe -skipintro %command%`
-    The `%command%` part will be expanded into the original Space Engineers executable path and is just required for Steam to understand that we are replacing the full command line, not just appending to it.
-    
-3. Once in the game, click on the new "Plugins" button in the main menu.
-  
-4. Type "Projected Lights" in the search bar, then check the box next to the search result.
-  
-5. Press Esc or click the X in the top right, then click on "Apply" and answer "Yes" to restart the game.
+4. Press Esc or click the X in the top right, then click on "Apply" and answer "Yes" to restart the game.
   
 
 The plugin is now installed and active and will be updated automatically.

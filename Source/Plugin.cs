@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using VRage.Plugins;
 using VRage.Utils;
@@ -10,6 +11,19 @@ namespace mleise.ProjectedLightsPlugin
 {
 	sealed class Main : IPlugin
 	{
+		/// <summary>Resolves the Pulsar plugin loader assembly when Init() is called. (Required when compiled from development folder.)</summary>
+		static Main()
+		{
+			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler((object sender, ResolveEventArgs args) =>
+			{
+				if (args.RequestingAssembly == Assembly.GetExecutingAssembly() && args.Name.StartsWith("PluginLoader, "))
+				{
+					return Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Plugins", "loader.dll"));
+				}
+				return null;
+			});
+		}
+
 		/// <summary>Called when the plugins are instantiated.</summary>
 		public void Init(object gameInstance)
 		{
