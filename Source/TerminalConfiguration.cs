@@ -171,10 +171,10 @@ namespace mleise.ProjectedLightsPlugin
 		internal static float GetUp(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Up", DefaultUp(ref pr));
 		internal static void SetUp(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Up", DefaultUp(ref pr), value);
 
-		private static float DefaultRotation(ref ParseResult pr) => pr.definition.Rotation;
-		internal static float GetDefaultRotation(MyFunctionalBlock block) => DefaultRotation(ref Parse(block, out _));
-		internal static float GetRotation(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Rotation", DefaultRotation(ref pr));
-		internal static void SetRotation(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Rotation", DefaultRotation(ref pr), value);
+		private static float DefaultPitch(ref ParseResult pr) => pr.definition.Rotation;
+		internal static float GetDefaultPitch(MyFunctionalBlock block) => DefaultPitch(ref Parse(block, out _));
+		internal static float GetPitch(MyFunctionalBlock block) => GetFloat(ref Parse(block, out var pr), "Rotation", DefaultPitch(ref pr));
+		internal static void SetPitch(MyFunctionalBlock block, float value) => SetFloat(ref Parse(block, out var pr, true), "Rotation", DefaultPitch(ref pr), value);
 
 		private static float DefaultBloom(ref ParseResult pr) => pr.definition.Bloom;
 		internal static float GetDefaultBloom(MyFunctionalBlock block) => DefaultBloom(ref Parse(block, out _));
@@ -379,16 +379,16 @@ namespace mleise.ProjectedLightsPlugin
 				},
 			});
 
-			var rotationSlider = new MyTerminalControlSlider<MyLightingBlock>("Rotation", MySpaceTexts.HelpScreen_ControllerRotation_Pitch, MySpaceTexts.Blank)
+			var pitchSlider = new MyTerminalControlSlider<MyLightingBlock>("Pitch", MySpaceTexts.HelpScreen_ControllerRotation_Pitch, MySpaceTexts.Blank)
 			{
 				Enabled = IniHandler.GetEnabled,
-				DefaultValueGetter = IniHandler.GetDefaultRotation,
-				Getter = IniHandler.GetRotation,
-				Setter = IniHandler.SetRotation,
-				Writer = (x, result) => result.AppendDecimal(IniHandler.GetRotation(x), 1).Append(" °"),
+				DefaultValueGetter = IniHandler.GetDefaultPitch,
+				Getter = IniHandler.GetPitch,
+				Setter = IniHandler.SetPitch,
+				Writer = (x, result) => result.AppendDecimal(IniHandler.GetPitch(x), 1).Append(" °"),
 			};
-			rotationSlider.SetLimits(-180, +180);
-			MyTerminalControlFactory.AddControl(rotationSlider);
+			pitchSlider.SetLimits(-180, +180);
+			MyTerminalControlFactory.AddControl(pitchSlider);
 
 			var forwardSlider = new MyTerminalControlSlider<MyLightingBlock>("Forward", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetZ, MySpaceTexts.Blank)
 			{

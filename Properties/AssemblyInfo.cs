@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // Version that shows in the plugin list in Space Engineers as well as Windows Explorer unless overridden by an AssemblyFileVersion.
 [assembly: AssemblyVersion("1.0.4.0")]
 // Version of Space Engineers this plugin was written for. Shows as "Product" related info in Windows Explorer.
-[assembly: AssemblyInformationalVersion("1.204.018 b2")]
+[assembly: AssemblyInformationalVersion("1.206.032 b1")]
 // Yearly updates to the copyright notice.
-[assembly: AssemblyCopyright("Copyright © 2024 Marco Leise")]
+[assembly: AssemblyCopyright("Copyright © 2025 Marco Leise")]
 
 // INFORMATION SPECIFIC TO THIS PLUGIN (KEEP IN SYNC WITH PLUGIN HUB XML)
 
