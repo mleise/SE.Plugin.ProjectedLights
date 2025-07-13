@@ -243,6 +243,9 @@ namespace mleise.ProjectedLightsPlugin
 			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots Refracted"), @"Textures\Lights\dual_reflector_2.dds"),
 			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Two Spots"), @"Textures\Lights\dual_reflector_3.dds"),
 			new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Directional"), @"Textures\Particles\SciFiEngineThrustMiddle.DDS"),
+			new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Cross, @"Textures\Models\Cross.dds"),
+			new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Danger, @"Textures\Models\DangerZone.dds"),
+			new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Construction, @"Textures\Models\UnderConstruction.dds"),
 			new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpacePirates_Translation, @"Textures\FactionLogo\PirateIcon.dds"),
 			new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_SpaceSpiders_Translation, @"Textures\FactionLogo\Spiders.dds"),
 			new KeyValuePair<MyStringId, string>(MySpaceTexts.DisplayName_Faction_Factorum_Translation, @"Textures\FactionLogo\Factorum.dds"),
@@ -271,9 +274,6 @@ namespace mleise.ProjectedLightsPlugin
 					textures.Add(new KeyValuePair<MyStringId, string>(MyStringId.GetOrCompute("Other " + i.ToString()), @"Textures\FactionLogo\Others\OtherIcon_" + i.ToString() + ".dds"));
 				}
 			}
-			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Cross, @"Textures\Models\Cross.dds"));
-			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Danger, @"Textures\Models\DangerZone.dds"));
-			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Construction, @"Textures\Models\UnderConstruction.dds"));
 			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Angry, @"Textures\Models\Emotes\Angry.dds"));
 			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Annoyed, @"Textures\Models\Emotes\Annoyed.dds"));
 			textures.Add(new KeyValuePair<MyStringId, string>(MySpaceTexts.LCD_Emote_Confused, @"Textures\Models\Emotes\Confused.dds"));

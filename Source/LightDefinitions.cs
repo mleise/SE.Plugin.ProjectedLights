@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using static VRage.MyRenderVoxelMaterialData;
 
 namespace mleise.ProjectedLightsPlugin
 {
@@ -181,7 +182,7 @@ namespace mleise.ProjectedLightsPlugin
 				Intensity = 9,
 			},
 			// Signal Update
-			["TrussPillarLight2"] = new LightDefinition(false)
+			["TrussPillarLight"] = new LightDefinition(false)
 			{
 				Texture = @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS",
 				SpotTexture = @"Textures\SunGlare\SunCircle.DDS",
@@ -194,7 +195,7 @@ namespace mleise.ProjectedLightsPlugin
 				ShadowRange = 20,
 				Mix = 0.9f,
 			},
-			["TrussPillarLightSmall2"] = new LightDefinition(false)
+			["TrussPillarLightSmall"] = new LightDefinition(false)
 			{
 				Texture = @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS",
 				SpotTexture = @"Textures\SunGlare\SunCircle.DDS",
@@ -207,7 +208,7 @@ namespace mleise.ProjectedLightsPlugin
 				ShadowRange = 20,
 				Mix = 0.1f,
 			},
-			["CorridorLight2"] = new LightDefinition(true)
+			["CorridorLight"] = new LightDefinition(true)
 			{
 				Texture = @"Textures\Lights\reflector_large.dds",
 				TextureRotation = 0,
@@ -229,6 +230,38 @@ namespace mleise.ProjectedLightsPlugin
 				Intensity = 5.5f,
 				Mix = 0.09f,
 				ShadowRange = 15,
+			},
+			["LargeBlockInsetWallLight"] = new LightDefinition(true)
+			{
+				Texture = @"Textures\Lights\dual_reflector_3.dds",
+				SpotTexture = @"Textures\Lights\dual_reflector.dds",
+				ConeAngle = 175,
+				Forward = 0.1f,
+				Up = 1.4f,
+				Bloom = 20,
+				Intensity = 13,
+				Mix = 0.2f,
+				Rotation = -45,
+				TextureRotation = 0,
+			},
+			["CorridorRoundLight"] = new LightDefinition(true)
+			{
+				Texture = @"Textures\SunGlare\SunFlareWhiteAnamorphic.DDS",
+				Rotation = -90,
+				Bloom = 14,
+				Forward = -0.9f,
+				ConeAngle = 171,
+				Mix = 0.04f,
+			},
+			["LabEquipment2"] = new LightDefinition(true)
+			{
+				Rotation = 180,
+				Forward = -1,
+				TextureRotation = 72,
+				ConeAngle = 168,
+				Texture = @"Textures\Lights\dual_reflector.dds",
+				Mix = 0.33f,
+				Intensity = 1,
 			},
 		};
 
